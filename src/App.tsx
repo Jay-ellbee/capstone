@@ -13,12 +13,13 @@ import Customers from './admin/CustomerPage';
 import Sales from '@/admin/SalesPage';
 import TransactionsPage from '@/admin/TransactionsPage';
 import Cart from '@/pages/Cart';
-import RegCustomersPage from './admin/RegisteredCustomers';
-import GuestCustomersPage from './admin/GuestCustomers';
 import CurrentOrdersPage from './admin/CurrentOrders';
 import CompletedOrdersPage from './admin/CompletedOrders';
 
 import Auth from './pages/Auth';
+
+//need na matanggal dito yung mga dapat di naaaccess via changing the url
+// customer ends are fine but for the admin side, need na log in lang ang accessible. It should also be imported path from each 
 
 const App = () => {
   return (
@@ -30,15 +31,13 @@ const App = () => {
           <Route path="/signup" element={<SignUpForm />} /> {/* Sign Up Page */}
           <Route path="/products" element={<ProductList />} /> {/* Product List Page */}
           <Route path="/product/:id" element={<ProductDetail />} /> {/* Product Detail */}
-          <Route path="/admin/dashboard" element={<Dashboard />}/>{/* Admin Dashboard */}
+          <Route path="/admin/dashboard" element={<Dashboard />}/>{/* Admin Dashboard */} 
           <Route path="/admin/orders" element={<OrdersPage />}/>{/* Orders */}
           <Route path="/admin/inventory" element={<Inventory />}/>{/* Inventory */}
           <Route path="/admin/customers" element={<Customers />}/>{/* Customers */}
           <Route path="/admin/sales" element={<Sales />}/>{/* Sales */}
           <Route path="/admin/transactions" element={<TransactionsPage />}/>{/* Transactions */}
           <Route path="/cart" element={<Cart />}/>{/* Cart */}
-          <Route path="/admin/customers/registered" element={<RegCustomersPage/>}/> {/* Registered Customers */}
-          <Route path="/admin/customers/guest" element={<GuestCustomersPage/>}/> {/* Guest Customers */}
           <Route path="/admin/orders/current" element={<CurrentOrdersPage/>}/> {/* Current Orders*/}
           <Route path="/admin/orders/completed" element={<CompletedOrdersPage/>}/> {/* Completed Orders*/}
 

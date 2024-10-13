@@ -82,7 +82,7 @@ interface DataItemReg {
   contact: string;
 }
 
-const data1: DataItemReg[] = [
+const data: DataItemReg[] = [
   { id: "RDU0001", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
   { id: "RDU0002", name: "Bongbong Martes", address: "#543 Iran St.", city: "Caloocan City", contact: "+639454536435" },
   { id: "RDU0003", name: "Risa Hontiverus", address: "#27 De Jesus", city: "Taguig City", contact: "+639604351205" },
@@ -91,18 +91,7 @@ const data1: DataItemReg[] = [
   { id: "RDU0006", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
 ];
 
-const data2: DataItemReg[] = [
-  { id: "GSU0001", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
-  { id: "GSU0002", name: "Bongbong Martes", address: "#543 Iran St.", city: "Caloocan City", contact: "+639454536435" },
-  { id: "GSU0003", name: "Risa Hontiverus", address: "#27 De Jesus", city: "Taguig City", contact: "+639604351205" },
-  { id: "GSU0004", name: "Risa Hontiverus", address: "#27 De Jesus", city: "Taguig City", contact: "+639604351205"},
-  { id: "GSU0005", name: "Bongbong Martes", address: "#543 Iran St.", city: "Caloocan City", contact: "+639454536435" },
-  { id: "GSU0006", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
-];
-
 const Customers: React.FC = () => {
-  const rowsToShow = 3; // Number of rows to show when collapsed
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       {/*Config ng wide screen na navigation */}
@@ -336,41 +325,10 @@ const Customers: React.FC = () => {
               </BreadcrumbList>
             </Breadcrumb>
             </div>
-        <div className="p-4">
-          <Card className="p-4 md:gap-2">
-            <CardHeader className="p-2">
-              <CardTitle className="text-foreground transition-colors hover:text-foreground bg-primary text-lg font-semibold text-primary-foreground md:text-base">Customers</CardTitle>
-              <div className="ml-auto flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-7 gap-1">
-                      <ListFilter className="h-3.5 w-3.5" />
-                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        Filter
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem checked>
-                      Registered
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>Guest</DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button size="sm" variant="outline" className="h-7 gap-1">
-                  <File className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Export
-                  </span>
-                </Button>
-              </div>
-            </CardHeader>
-              <CardContent>
+        <div className="p-4">       
               <Card x-chunk="dashboard-06-chunk-0" className="mt-4 ml-6 p-4 bg-gray-50">
                 <CardHeader>
-                  <CardTitle>Registered Customers</CardTitle>
+                  <CardTitle>Customers</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -385,7 +343,7 @@ const Customers: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(data1.slice(0, rowsToShow)).map((item) => (
+                      {data.map((item) => (
                         <TableRow key={item.id} className="hover:bg-gray-100">
                           <TableCell className="font-medium">{item.id}</TableCell>
                           <TableCell>{item.name}</TableCell>
@@ -421,77 +379,9 @@ const Customers: React.FC = () => {
                     Showing <strong>1-10</strong> of <strong>32</strong> products
                   </div>
                     <div>
-                      <Link to="/admin/customers/registered">
-                      <Button size="sm" className="ml-auto gap-1">
-                        View All
-                        <ArrowRight className="h-4 w-4" />
-                      </Button></Link>
                     </div>
                 </CardFooter>
               </Card>
-              <Card x-chunk="dashboard-06-chunk-0" className="mt-6 ml-6 p-4 bg-gray-50">
-                <CardHeader>
-                  <CardTitle>Guest Customers</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Customer ID</TableHead>
-                        <TableHead>Customer Name</TableHead>
-                        <TableHead>Address</TableHead>
-                        <TableHead>City / Town</TableHead>
-                        <TableHead >Contact No.</TableHead>
-                        <TableHead><span className="sr-only">Actions</span></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(data2.slice(0, rowsToShow)).map((item) => (
-                        <TableRow key={item.id} className="hover:bg-gray-100">
-                          <TableCell className="font-medium">{item.id}</TableCell>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.address}</TableCell>
-                          <TableCell className="hidden md:table-cell">{item.city}</TableCell>
-                          <TableCell className="hidden md:table-cell">{item.contact}</TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center">
-                  <div className="text-xs text-muted-foreground">
-                    Showing <strong>1-10</strong> of <strong>32</strong> products
-                  </div>
-                    <div>
-                      <Link to="/admin/customers/guest">
-                      <Button size="sm" className="ml-auto gap-1">
-                        View All
-                        <ArrowRight className="h-4 w-4" />
-                      </Button></Link>
-                    </div>
-                </CardFooter>
-              </Card>
-              </CardContent>
-          </Card>
           </div>
         </main>
       </div>
