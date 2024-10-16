@@ -224,7 +224,7 @@ const Dashboard: React.FC = () => {
                   </CardContent>
                   <CardFooter>
                     <Button asChild size="sm" className="ml-auto gap-1">
-                    <Link to="/admin/transactions">
+                    <Link to="/admin/sales">
                       View All
                       <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -243,7 +243,7 @@ const Dashboard: React.FC = () => {
                     </p>
                   </CardContent>
                   <CardFooter><Button asChild size="sm" className="ml-auto gap-1">
-                    <Link to="/admin/transactions">
+                    <Link to="/admin/customers">
                       View All
                       <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -504,7 +504,7 @@ const Dashboard: React.FC = () => {
                       </div>
                   </CardContent>
                   <CardFooter><Button asChild size="sm" className="ml-auto gap-1">
-                    <Link to="/admin/inventory">
+                    <Link to="/admin/dashboard">
                       View All
                       <ArrowRight className="h-4 w-4" />
                     </Link>

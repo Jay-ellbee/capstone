@@ -42,8 +42,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await response.json();
       const { role, token } = data; // Extract only the role and token from the response
-      sessionStorage.setItem('token', token); // Store token in sessionStorage
       sessionStorage.setItem('role', role);   // Store role in sessionStorage
+      sessionStorage.setItem('token', token); // Store token in sessionStorage
+      
       setRole(role); // Set the role in state
       console.log('Role after login:', role); // Log the role to ensure it's set correctly
     } catch (error) {

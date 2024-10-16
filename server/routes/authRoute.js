@@ -54,7 +54,7 @@ const verifyTokenAndUserType = (allowedTypes) => (req, res, next) => {
 authRouter.post('/auth', (req, res) => {
     console.log('Inside /auth route handler');  // Add this to confirm route is hit
     
-    const SECRET_KEY = '709899942c46ff3fa702ade55360d5dfc8381eb1b2689dda966048f0aaba355c349fd171290e676efa5c848152fd000ea83868965c823cb53afe158b43058dff';
+    const SECRET_KEY = process.env.JWT_SECRET_KEY   
     console.log('Loaded SECRET_KEY:', SECRET_KEY);  // Ensure key is available
   
     const { email, password } = req.body;

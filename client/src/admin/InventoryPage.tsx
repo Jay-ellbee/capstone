@@ -417,6 +417,7 @@ export function Inventory() {
                 </CardContent>
               </Card>
             </TabsContent>
+
             <TabsContent value='materials'>
             <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader className="flex flex-row justify-between">
@@ -540,8 +541,6 @@ export function Inventory() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-
-                        
                         <TableHead className="hidden w-[100px] sm:table-cell">
                           <span className="sr-only">Image</span>
                         </TableHead>
@@ -561,7 +560,7 @@ export function Inventory() {
                     </TableHeader>
                     <TableBody>
                     {materials.map((item) => (
-                      <TableRow>
+                      <TableRow key={item.mat_id}> 
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
                         </TableCell>
@@ -595,6 +594,7 @@ export function Inventory() {
                 </CardContent>
               </Card>
             </TabsContent>
+
             <TabsContent value='arrangements'>
             <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader className="flex flex-row justify-between">
@@ -741,7 +741,7 @@ export function Inventory() {
                     </TableHeader>
                     <TableBody>
                     {arrangements.map((item) => (
-                      <TableRow>
+                      <TableRow key={item.arr_id}>
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
                         </TableCell>
