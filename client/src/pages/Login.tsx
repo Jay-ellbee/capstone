@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext'; // Use the custom hook
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -14,41 +14,28 @@ export const description =
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null); // State to store error messages
   const navigate = useNavigate();
-  const authContext = useContext(AuthContext);
+  const { login, role } = useAuth(); // Destructure login and user from useAuth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Hardcoded credentials for demonstration
-    const hardcodedCredentials = {
-        admin: { email: 'admin@example.com', password: 'adminPass' },
-        customer: { email: 'customer@example.com', password: 'customerPass' }
-    };
-
-    // Check if entered credentials match any of the hardcoded ones
-    if (
-        (email === hardcodedCredentials.admin.email && password === hardcodedCredentials.admin.password) ||
-        (email === hardcodedCredentials.customer.email && password === hardcodedCredentials.customer.password)
-    ) {
-        // Mock login logic: set user role based on email
-        const userRole = email === hardcodedCredentials.admin.email ? 'admin' : 'customer';
-
-        // Create a mock token
-        const token = JSON.stringify({ role: userRole, email });
-
-        // Store the mock token
-        localStorage.setItem('token', token);
-
-        // Redirect based on user role
-        const redirectPath = userRole === 'admin' ? '/admin/dashboard' : '/';
-        navigate(redirectPath);
-    } else {
-        console.error('Login failed: Incorrect email or password');
-        alert('Login failed: Incorrect email or password');
+    try {
+      await login(email, password);
+    } catch (error: any) {
+      setError('Login failed. Please check your credentials.');
     }
-};
+  };
 
+  // UseEffect for handling redirection after login
+  useEffect(() => {
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else if (role === 'customer') {
+      navigate('/');
+    }
+  }, [role, navigate]);
+  
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
