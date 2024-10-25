@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext'; // Use the custom hook
 import { Link } from "react-router-dom";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { EyeIcon } from "lucide-react"
+import { EyeClosedIcon } from '@radix-ui/react-icons';
 
 export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account.";
@@ -36,60 +33,85 @@ export function LoginForm() {
     }
   }, [role, navigate]);
   
+  const [showPassword, setShowPassword] = useState(false);
   return (
-    <Card className="mx-auto max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleLogin}>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
+    <div className="min-h-screen flex justify-center items-center bg-gray-200">
+      <div className="flex w-full max-w-4xl bg-white rounded-[20px] shadow-lg overflow-hidden">
+        {/* Left - Sign In Section */}
+        <div className="w-2/3 p-8 h-[100%] mt-0 mb-0">
+          <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <input
                 id="email"
-                type="text" // Changed type to 'text' since credentials are not actual emails
-                placeholder="Enter your username"
+                type="text"
+                placeholder="Enter Email or Username"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link to="/" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link>
-              </div>
-              <Input
+            <div className="mb-4 relative">
+              <input
                 id="password"
-                type="password"
-                placeholder="Enter your password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter Password"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="absolute right-3 top-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeIcon className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <EyeClosedIcon className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
             </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-            <Button variant="outline" className="w-full">
-              Login with Google
-            </Button>
-          </div>
-        </form>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{' '}
-          <Link to="/signup" className="underline">
-            Sign up
-          </Link>
+            <div className="flex justify-between items-center text-sm mb-6">
+              <label className="flex items-center space-x-2">
+                <input type="checkbox" className="form-checkbox" />
+                <span>Keep me logged in</span>
+              </label>
+              <a href="#" className="text-gray-500">Forgot Password?</a>
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-pink-400 text-white py-2 rounded-lg hover:bg-pink-600 transition-colors">
+              Sign In
+            </button>
+          </form>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Right - Sign Up Section */}
+        <div className="w-1/3 bg-gray-100 p-8 relative h-[100%] mt-0 mb-0">
+          <button className="absolute top-4 right-4 text-xl font-bold text-gray-400 hover:text-gray-600">
+            <Link to="/">&times;</Link>
+          </button>
+          <div className="text-center">
+            <div className="mb-4">
+              <div className="w-16 h-16 bg-gray-200 mx-auto rounded-full"></div>
+            </div>
+            <h2 className="text-2xl font-bold mb-4">Hello!</h2>
+            <p className="text-gray-500 mb-6">
+              Register with your personal details <br />
+              to use all of the site's features.
+            </p>
+            <button className="w-full py-2 border-2 border-gray-600 rounded-full text-gray-600 hover:bg-gray-600 hover:text-white transition-colors">
+              <Link to="/signup">
+                Sign up
+              </Link>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -7,9 +7,8 @@ import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Profile from './pages/Profile';
+import Profile from './customer/Profile';
 import Customization from './pages/Customization';
-import Auth from './pages/Auth'; 
 import NotFound from './error/NotFound'; 
 import Dashboard from './admin/AdminDashboard';
 import CompletedOrders from './admin/CompletedOrders';
@@ -19,12 +18,16 @@ import { Inventory } from './admin/InventoryPage';
 import OrdersPage from './admin/OrdersPage';
 import SalesPage from './admin/SalesPage';
 import TransactionsPage from './admin/TransactionsPage';
+import AccountSetup from './customer/AccountSetUp';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import CartProvider from './context/CartContext';
+import AboutUs from './pages/AboutUs';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <CartProvider>
       <Router>
         <Routes>
           {/* Public Pages */}
@@ -35,15 +38,22 @@ const App: React.FC = () => {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/customization" element={<Customization />} />
-          <Route path="/auth" element={<Auth />} />
-          
+          <Route path="/customization" element={<Customization />} /> 
+          <Route path="/about-us" element={<AboutUs />} />         
           {/* Protected Customer Routes */}
           <Route
             path="/profile"
             element={
               <ProtectedRoute allowedTypes={['customer']}>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account-set-up"
+            element={
+              <ProtectedRoute allowedTypes={['customer']}>
+                <AccountSetup />
               </ProtectedRoute>
             }
           />
@@ -118,6 +128,7 @@ const App: React.FC = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      </CartProvider>
     </AuthProvider>
   );
 };

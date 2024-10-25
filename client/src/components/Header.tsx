@@ -36,7 +36,7 @@ const Header: React.FC = () => {
         navigate('/login');  // Redirect the user to the login page after logging out
       };
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 sm:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
                   <LineChart className="h-5 w-5" />
-                  Settings
+                  Sales
                 </Link>
               </nav>
             </SheetContent>

@@ -49,13 +49,13 @@ import {
 import Sidebar from '@/components/Sidebar'; // Import the Sidebar
 import Header from '@/components/Header';   // Import the Header
 
-const Sales: React.FC = () => {
+const SuggestedProducts: React.FC = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       {/*Config ng wide screen na navigation */}
       <Sidebar />  {/* Render the Sidebar */}
-      <div className="flex flex-col sm:gap-4 sm:py-0 sm:pl-14">
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
       <Header /> {/* Render the Header */}
           <div className="flex justify-between items-center p-4 pb-0">
           <Breadcrumb className="hidden md:flex">
@@ -115,13 +115,13 @@ const Sales: React.FC = () => {
               </div>
             </div>
             </div>
-          <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <div className="grid auto-rows-max items-start gap-4 md:gap-8">
+          <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-4 xl:grid-cols-4">
+            <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
               {/*First row of the first column*/}
 
 
               <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 justify-between">
-                  <h1 className="font-semibold">Sales</h1>
+                  <h1 className="font-semibold">Overview</h1>
               </div>
               {/*Second row of the first column*/}
               <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 justify-between">
@@ -211,9 +211,41 @@ const Sales: React.FC = () => {
                     </Card>
               </div>            
               </div>
+              <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-1">
+              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1">
+                <Card
+                  className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
+                  >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Suggested Products
+                    </CardTitle>
+                    
+                  </CardHeader>
+                  <CardContent className="flex flex-col justify-center items-center overflow-hidden">
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                  </CardContent>
+                  <CardFooter><Button asChild size="sm" className="ml-auto gap-1">
+                    <Link to="/admin/inventory">
+                      View All
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  </CardFooter>
+                </Card>
+                </div>
+              </div>
           </main>
         </div>
     </div>
   )}
 
-export default Sales;
+export default SuggestedProducts;

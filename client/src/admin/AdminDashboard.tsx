@@ -73,6 +73,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import Sidebar from '@/components/Sidebar'; // Import the Sidebar
 import Header from '@/components/Header';   // Import the Header
 
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+
 const frameworks = [
   {
     value: "Completed",
@@ -197,7 +200,7 @@ const Dashboard: React.FC = () => {
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       {/*Config ng wide screen na navigation */}
       <Sidebar />  {/* Render the Sidebar */}
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="flex flex-col sm:gap-4 sm:py-0 sm:pl-14">
       <Header /> {/* Render the Header */}
           <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-4 xl:grid-cols-4">
             <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
@@ -493,6 +496,7 @@ const Dashboard: React.FC = () => {
                     
                   </CardHeader>
                   <CardContent className="flex flex-col justify-center items-center overflow-hidden">
+                    <ScrollArea className="h-80 w-auto rounded-md border">
                       <div className="flex flex-col space-y-3 mb-3">
                       <Skeleton className="h-[125px] w-[250px] rounded-xl" />
                       </div>
@@ -502,6 +506,28 @@ const Dashboard: React.FC = () => {
                       <div className="flex flex-col space-y-3 mb-3">
                       <Skeleton className="h-[125px] w-[250px] rounded-xl" />
                       </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      <div className="flex flex-col space-y-3 mb-3">
+                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                      </div>
+                      </ScrollArea>
                   </CardContent>
                   <CardFooter><Button asChild size="sm" className="ml-auto gap-1">
                     <Link to="/admin/dashboard">
