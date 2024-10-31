@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 
 import Dashboard from '@/admin/AdminDashboard'; // Adjusted import
-import Customer from '@/pages/Home'; // Adjusted import
+import Customer from '@/pages/HomeFP'; // Adjusted import
 import NotFound from '@/error/NotFound'; // Ensure this is correct
 
 const Auth = () => {

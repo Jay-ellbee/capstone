@@ -1,4 +1,4 @@
-import { pool } from '../config/database.js';
+import pool from './database.js';
 
 const createQueries = [
  ` DROP TABLE IF EXISTS admin;

@@ -42,7 +42,7 @@ const ProductList: React.FC  = () =>{
   // Function to fetch products from the backend
   async function fetchProducts() {
     try {
-      const response = await fetch('/api/admin/products', {
+      const response = await fetch('/api/inventory/arrangements', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

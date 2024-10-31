@@ -26,7 +26,7 @@ export function LoginForm() {
 
   // UseEffect for handling redirection after login
   useEffect(() => {
-    if (role === 'admin') {
+    if (role === 'super_admin') {
       navigate('/admin/dashboard');
     } else if (role === 'customer') {
       navigate('/');

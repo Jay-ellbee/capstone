@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowDown,
   CalendarIcon,
@@ -33,6 +33,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuItem
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
@@ -85,58 +86,565 @@ import {
 
 import Sidebar from '@/components/Sidebar'; // Import the Sidebar
 import Header from '@/components/Header';   // Import the Header
+import { format } from 'date-fns';
+import { ToastCopyIdButton } from '@/components/ToastCopyId';
 
-export const description =
-  "An products dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of products in a table with actions."
-
-  interface ProductsItem {
+  type ProductsItem = {
     batch_id: string;
     prod_id: string;
-    name: string;
-    color: string;
-    variant: string;
+    prod_name: string;
+    variant_name: string;
+    var_color: string;
     prod_type: string;
-    stock: string; 
+    stock_qty: string; 
     price_per_qty: number;
-    shelf_life: string;
+    shelf_life: number;
   }
 
-  interface MaterialItem {
+  type MaterialItem = {
     mat_id: string;
     mat_name: string;
-    mat_type_id: string;
+    type_name: string;
     color: string;
     stock_qty: number;
   }
 
-  interface ArrangementItem {
-    arr_id: string;
-    arr_name: string;
-    arr_type_id: string;
-    prod_id: string;
+  type ArrangementItem = {
+    arrangement_id: string;
+    arrangement_name: string;
+    arrangement_type: string;
     price: number;
-    desc: string;
-    num_rev: number;
-    img: string;
+    description: string;
+    num_reviews: number;
+    img_link: string;
     num_sold: number;
   }
   
-  const products: ProductsItem[] = [
-    { batch_id: "BA0001", prod_id: "PR0001", name: "Rose", color: "Pink", variant: "Ecuadorian", prod_type: "flower", stock:"200", price_per_qty: 350, shelf_life:"3" },
-    { batch_id: "BA0002", prod_id: "PR0002", name: "Carnation", color: "Yellow", variant: "N/A", prod_type: "flower", stock:"200", price_per_qty: 350, shelf_life:"5" },
-    { batch_id: "BA0003", prod_id: "PR0003", name: "Rose", color: "Red", variant: "China", prod_type: "flower", stock:"50", price_per_qty: 350, shelf_life:"10" },
-    { batch_id: "BA0004", prod_id: "PR0004", name: "Carnation", color: "Pink", variant: "N/A", prod_type: "flower", stock:"400", price_per_qty: 350, shelf_life:"15" },
-  ];
-
-  const materials: MaterialItem[] = [
-    {mat_id: "MA00001", mat_name: "Wrapper", mat_type_id: "MT00001", color: "Yellow", stock_qty: 1},
+  const productTypes = ["filler", "flower", "leaves"]
+  const materialTypes = [
+    {
+      label: "Cellophane",
+      value: "MT00001"
+    },{
+      label: "Tissue",
+      value: "MT00002"
+    },{
+      label: "Sinamay",
+      value: "MT00003"
+    },{
+      label: "Kraft",
+      value: "MT00004"
+    },{
+      label: "Item/gift",
+      value: "MT00005"
+    },{
+      label: "Taupe",
+      value: "MT00006"
+    },{
+      label: "Nylon",
+      value: "MT00007"
+    },{
+      label: "Fabric",
+      value: "MT00008"  
+    },{
+      label: "Silk",
+      value: "MT00009"
+    },{
+      label: "Mesh",
+      value: "MT00010"
+    }
+  ]
+  const arrangementTypes = [
+    {
+      label: "Bouquet",
+      value: "AT00001"
+    },{
+      label: "Funeral",
+      value: "AT00002"
+    },{
+      label: "Entourage",
+      value: "AT00003"
+    },{
+      label: "Bridal Bouquet",
+      value: "AT00004"
+    },{
+      label: "Funeral Basket",
+      value: "AT00005"
+    },
   ]
 
-  const arrangements: ArrangementItem[] = [
-    {arr_id: 'AR00001', arr_name: 'Blush Whispers', arr_type_id: 'AT00001', prod_id: 'PR00001', price: 1500, desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ', num_rev: 1, img: 'https://i.pinimg.com/564x/62/8b/4e/628b4eefdd9da234ff0c3ee86efaa9e2.jpg', num_sold: 0}
-  ]
-export function Inventory() {
+const Inventory: React.FC = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [productsData, setProductsData] = useState<ProductsItem[]>([]);
+  const [materialsData, setMaterialsData] = useState<MaterialItem[]>([]);
+  const [arrangementsData, setArrangementsData] = useState<ArrangementItem[]>([]);
+  const [selectedArrangementType, setSelectedArrangementType] = useState<string | null>(null);
+  const [selectedMaterialsType, setSelectedMaterialsType] = useState<string | null>(null);
+  const [selectedProductsType, setSelectedProductsType] = useState<string | null>(null);
+  const [productId, setProductId] = useState("");
+  const [productBatchId, setProductBatchId] = useState("");
+  const [materialId, setMaterialId] = useState("");
+  const [arrangementId, setArrangementId] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+
+  // START OF FETCHING OF PRODUCTS
+  useEffect(() => {
+    async function getProducts() {
+      const products = await fetchProducts();
+      if (products) {
+        setProductsData(products);
+      }
+    }
+    getProducts();
+  }, []);
+
+  async function fetchProducts() {
+    try {
+      const response = await fetch('/api/inventory/products', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+  
+      const products = await response.json();
+      console.log(products);
+      return products;
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  }
+// END OF FETCHING OF PRODUCTS
+
+// START OF DELETING OF PRODUCTS BY ID
+const deleteProduct = async (id: string) => {
+  try {
+    const response = await fetch(`/api/inventory/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete product');
+    }
+
+    console.log(`Product with ID ${id} deleted successfully`);
+    
+    // Automatically update products data by filtering out the deleted product
+    setProductsData((prevData) => prevData.filter((product) => product.prod_id !== id));
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+};
+
+// HANDLE DELETE CONFIRM AND CALL DELETE FUNCTION
+const handleDeleteConfirmation = () => {
+  if (productId) {  // Assuming productId is the ID of the product you want to delete
+    deleteProduct(productId);
+  }
+};
+// END OF DELETING OF PRODUCTS BY ID
+
+// START OF DELETING OF PRODUCTS BY BATCH ID
+const deleteProductByBatch = async (id: string) => {
+  try {
+    const response = await fetch(`/api/inventory/products-batch/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete product');
+    }
+
+    console.log(`Product with ID ${id} deleted successfully`);
+    
+    // Automatically update products data by filtering out the deleted product
+    setProductsData((prevData) => prevData.filter((product) => product.batch_id !== id));
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+};
+
+// HANDLE DELETE CONFIRM AND CALL DELETE FUNCTION
+const handleDeleteByBatchConfirmation = () => {
+  if (productBatchId) {  // Assuming productId is the ID of the product you want to delete
+    deleteProductByBatch(productBatchId);
+  }
+};
+// END OF DELETING OF PRODUCTS BY BATCH ID
+
+// START ADDING OF PRODUCTS
+  const [product, setProduct] = useState({
+    prod_name: '',
+    prod_type: '',
+    variant_name: '',
+    var_color: '',
+    price_per_qty: 0,
+  });
+
+  const [batch, setBatch] = useState({
+    stock_qty: 0,
+    shelf_life: '',
+  });
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+  
+    // Check if the field is part of product or batch and update accordingly
+    if (name in product) {
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        [name]: value,
+      }));
+    } else if (name in batch) {
+      setBatch((prevBatch) => ({
+        ...prevBatch,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSelect = (type: string) => {
+    setSelectedType(type)
+    setProduct((prev) => ({ ...prev, prod_type: type }))
+  }
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date)
+      setBatch((prev) => ({ ...prev, shelf_life: format(date, "yyyy-MM-dd") }))
+    }
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form data:", { product, batch });
+
+    try {
+      const response = await fetch('/api/inventory/add-product-with-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product, batch }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Product and batch added:', data);
+      alert('Product and batch added successfully!');
+
+      // Reset form if needed
+      setProduct({ prod_name: '', prod_type: '', variant_name: '', var_color: '', price_per_qty: 0 });
+      setBatch({ stock_qty: 0, shelf_life: '' });
+    } catch (error) {
+      console.error('Failed to add product and batch:', error);
+      alert('Failed to add product and batch.');
+    }
+  };
+// END OF ADDING OF PRODUCTS
+
+//  START OF FETCHING OF MATERIALS
+  useEffect(() => {
+    async function getMaterials() {
+      const products = await fetchMaterials();
+      if (products) {
+        setMaterialsData(products);
+      }
+    }
+    getMaterials();
+  }, []);
+
+  async function fetchMaterials() {
+    try {
+      const response = await fetch('/api/inventory/materials', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+  
+      const products = await response.json();
+      console.log(products);
+      return products;
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  }
+  // END OF FETCHING OF MATERIALS
+
+  // START OF DELETING OF MATERIALS
+  const deleteMaterial = async (id: string) => {
+    try {
+      const response = await fetch(`/api/inventory/materials/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to delete material');
+      }
+  
+      console.log(`Material with ID ${id} deleted successfully`);
+      
+      // Automatically update products data by filtering out the deleted product
+      setMaterialsData((prevData) => prevData.filter((material) => material.mat_id !== id));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+  
+  // HANDLE DELETE CONFIRM AND CALL DELETE FUNCTION
+  const handleMaterialDeleteConfirmation = () => {
+    if (materialId) {  // Assuming materialId is the ID of the product you want to delete
+      deleteMaterial(materialId);
+    }
+  };
+  // END OF DELETING OF MATERIALS
+
+  // START ADDING OF MATERIALS
+  const [material, setMaterial] = useState({
+    mat_name: '',
+    material_type_id: '',
+    color: '',
+    stock_qty: 0,
+  });
+
+  const handleMaterialInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+  
+    // Check if the field is part of product or batch and update accordingly
+    if (name in material) {
+      setMaterial((prevMaterial) => ({
+        ...prevMaterial,
+        [name]: value,
+      }));
+    } 
+  };
+
+  const handleMaterialSelect = (type: string) => {
+    setSelectedType(type)
+    setMaterial((prev) => ({ ...prev, material_type_id: type }))
+  }
+
+  const handleMaterialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form data:", { material });
+
+    try {
+      const response = await fetch('/api/inventory/add-material', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ material }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Material added:', data);
+      alert('Material added successfully!');
+
+      // Reset form if needed
+      setMaterial({ mat_name: '', material_type_id: '', color: '', stock_qty: 0,});
+    } catch (error) {
+      console.error('Failed to add material:', error);
+      alert('Failed to add material.');
+    }
+  };
+  // END OF ADDING OF MATERIALS
+
+  // START OF FETCHING OF ARRANGEMENTS
+  useEffect(() => {
+    async function getArrangements() {
+      const products = await fetchArrangements();
+      if (products) {
+        setArrangementsData(products);
+      }
+    }
+    getArrangements();
+  }, []);
+
+  async function fetchArrangements() {
+    try {
+      const response = await fetch('/api/inventory/arrangements', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+  
+      const products = await response.json();
+      console.log(products);
+      return products;
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  }
+  // END OF FETCHING OF ARRANGEMENTS
+
+  // START OF DELETING OF ARRANGEMENTS
+  const deleteArrangement = async (id: string) => {
+    try {
+      const response = await fetch(`/api/inventory/arrangements/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to delete arrangement');
+      }
+  
+      console.log(`Arrangement with ID ${id} deleted successfully`);
+      
+      // Automatically update products data by filtering out the deleted product
+      setArrangementsData((prevData) => prevData.filter((arrangement) => arrangement.arrangement_id !== id));
+    } catch (error) {
+      console.error('Error deleting arrangement:', error);
+    }
+  };
+
+  // HANDLE DELETE CONFIRM AND CALL DELETE FUNCTION
+  const handleArrangementDeleteConfirmation = () => {
+    if (arrangementId) {  // Assuming arrangementId is the ID of the product you want to delete
+      deleteArrangement(arrangementId);
+    }
+  };
+  // END OF DELETING OF ARRANGEMENTS
+
+  // START OF ADDING OF ARRANGEMENTS
+  const [arrangement, setArrangement] = useState({
+    arrangement_name: '',
+    arrangement_type_id: '',
+    price: 0,
+    description: '',
+    img_link: '',
+  });
+
+  const handleArrangementInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+  
+    // Check if the field is part of product or batch and update accordingly
+    if (name in arrangement) {
+      setArrangement((prevArrangement) => ({
+        ...prevArrangement,
+        [name]: value,
+      }));
+    } 
+  };
+
+  const handleArrangementSelect = (type: string) => {
+    setSelectedType(type)
+    setArrangement((prev) => ({ ...prev, arrangement_type_id: type }))
+  }
+
+  const handleArrangementSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form data:", { arrangement });
+
+    try {
+      const response = await fetch('/api/inventory/add-arrangement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ arrangement }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Arrangement added:', data);
+      alert('Arrangement added successfully!');
+
+      // Reset form if needed
+      setArrangement({ arrangement_name: '', arrangement_type_id: '', price: 0, description: '', img_link: '' });
+    } catch (error) {
+      console.error('Failed to add arrangement:', error);
+      alert('Failed to add arrangement.');
+    }
+  };
+  // END OF ADDING OF ARRANGEMENTS
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  };
+
+// START OF FILTER ARRANGEMENTS BASED ON ARRANGEMENT TYPE
+const filteredArrangements = selectedArrangementType
+? arrangementsData.filter((product) => {
+    console.log("Product Type:", product.arrangement_type); // Log arrangement_type
+    return product.arrangement_type === selectedArrangementType;
+  })
+: arrangementsData;
+
+//FILTER MATERIALS BASED ON MATERIAL TYPE
+const filteredMaterials = selectedMaterialsType
+? materialsData.filter((product) => {
+    console.log("Product Type:", product.mat_name); // Log arrangement_type
+    return product.mat_name === selectedMaterialsType;
+  })
+: materialsData;
+
+// FILTER PRODUCTS BASED ON PRODUCT TYPE
+const filteredProducts = selectedProductsType
+? productsData.filter((product) => {
+    console.log("Product Type:", product.prod_type); // Log product_type
+    return product.prod_type === selectedProductsType;
+  })
+: productsData;
+// END OF FILTER
+
+// Sorting by shelf_life in ascending order
+const [isShelfLifeAscending, setIsShelfLifeAscending] = useState(true);
+const [sortedProducts, setSortedProducts] = useState(filteredProducts);
+const sortByShelfLifeAscending = (data: ProductsItem[]): ProductsItem[] => {
+  return [...data].sort((a, b) => Number(a.shelf_life) - Number(b.shelf_life));
+};
+
+// Sorting by shelf_life in descending order
+const sortByShelfLifeDescending = (data: ProductsItem[]): ProductsItem[] => {
+  return [...data].sort((a, b) => Number(b.shelf_life) - Number(a.shelf_life));
+};
+
+const handleSortByShelfLife = () => {
+  const sorted = isShelfLifeAscending
+    ? sortByShelfLifeAscending(filteredProducts)
+    : sortByShelfLifeDescending(filteredProducts);
+  setSortedProducts(sorted);
+  setIsShelfLifeAscending(!isShelfLifeAscending);
+};
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
     {/*Config ng wide screen na navigation */}
@@ -167,61 +675,6 @@ export function Inventory() {
                 <TabsTrigger value="arrangements">Arrangements</TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-7 gap-1">
-                      <ListFilter className="h-3.5 w-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem checked>
-                      Active
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>Draft</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>
-                      Archived
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Popover>
-                <PopoverTrigger asChild>
-                <Button size="sm" variant="outline" className="h-7 gap-1">
-                  <CalendarIcon className="h-3.5 w-3.5" />
-                </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          className="rounded-md border shadow"
-                          initialFocus
-                        />       
-                </PopoverContent>
-              </Popover>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-7 gap-1">
-                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        All time
-                      </span>
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Show by</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem checked>
-                      This Week
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>This Month</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>
-                      This Year
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
             <TabsContent value="products">
@@ -229,6 +682,49 @@ export function Inventory() {
                 <CardHeader className="flex flex-row justify-between">
                   <CardTitle>Inventory</CardTitle>
                   <div className="ml-auto flex items-center gap-2">
+                    {/* Sort Shelf Life Button */}
+                      <Button size="sm" variant="outline" onClick={handleSortByShelfLife} className="h-7 gap-1">
+                        Sort Shelf Life {isShelfLifeAscending ? "↑" : "↓"}
+                      </Button>
+       
+                  <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-7 gap-1">
+                              {selectedProductsType || "All"}
+                            <ListFilter className="h-3.5 w-3.5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Show by Type</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuCheckboxItem
+                            checked={!selectedProductsType}
+                            onClick={() => setSelectedProductsType(null)}
+                          >
+                            All
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedProductsType === "flower"}
+                            onClick={() => setSelectedProductsType("flower")}
+                          >
+                            Flower
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedProductsType === "filler"}
+                            onClick={() => setSelectedProductsType("filler")}
+                          >
+                            Filler
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedProductsType === "leaves"}
+                            onClick={() => setSelectedProductsType("leaves")}
+                          >
+                            Leaves
+                          </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/*Product removal Modal */}
                     <Dialog>
                       <DialogTrigger asChild>
                           <Button size="sm" variant="outline" className="h-7 gap-1">
@@ -244,21 +740,20 @@ export function Inventory() {
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="name" className="text-left">
-                                Details
-                              </Label>
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="username" className="text-right">
-                                Product:
+                                Product ID:
                               </Label>
-                              <Input id="prod_id" placeholder="Search by product ID or name" className="col-span-3" />
+                              <Input id="prod_id" 
+                              placeholder="Search by product ID" 
+                              value={productId}
+                              onChange={(e) => setProductId(e.target.value)}
+                              className="col-span-3" />
                             </div>
                           </div>
                           <DialogFooter>
                             <AlertDialog>
-                              <AlertDialogTrigger>
-                                <Button type="submit">Save</Button>
+                              <AlertDialogTrigger asChild>
+                                <Button type="button" variant="destructive">Delete</Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -268,7 +763,7 @@ export function Inventory() {
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogAction>Yes</AlertDialogAction>
+                                  <AlertDialogAction onClick={handleDeleteConfirmation}>Yes</AlertDialogAction>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -279,7 +774,60 @@ export function Inventory() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
+
+                       {/*Product by batch removal Modal */}
                     <Dialog>
+                      <DialogTrigger asChild>
+                          <Button size="sm" variant="outline" className="h-7 gap-1">
+                          <Trash className="h-3.5 w-3.5" />
+                          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                            Delete Product By Batch
+                          </span>
+                        </Button>
+                      </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Remove Product By Batch</DialogTitle>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="username" className="text-right">
+                                Batch ID:
+                              </Label>
+                              <Input id="prod_id" 
+                              placeholder="Search by batch ID" 
+                              value={productBatchId}
+                              onChange={(e) => setProductBatchId(e.target.value)}
+                              className="col-span-3" />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button type="button" variant="destructive">Delete</Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure you want to remove this product?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your product from our servers.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogAction onClick={handleDeleteByBatchConfirmation}>Yes</AlertDialogAction>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      {/*Add Product Modal */}
+                      <Dialog>
                       <DialogTrigger asChild>
                         <Button size="sm" className="h-7 gap-1">
                           <PlusCircle className="h-3.5 w-3.5" />
@@ -288,77 +836,147 @@ export function Inventory() {
                           </span>
                         </Button>
                       </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px]">
-                          <DialogHeader>
-                            <DialogTitle>Add Product</DialogTitle>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            {/*First row */}
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label className="text-left">
-                                Details
-                              </Label>
+                        <DialogContent className="sm:max-w-[600px]">
+                        <form onSubmit={handleSubmit}>
+                            <DialogHeader>
+                              <DialogTitle>Add Product with Batch</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              {/* Product Name */}
+                              <div className="grid grid-cols-6 items-center gap-4">
+                                <Label className="text-left">Product Name:</Label>
+                                <Input
+                                  type="text"
+                                  name="prod_name"
+                                  placeholder="Enter product name"
+                                  className="col-span-5"
+                                  value={product.prod_name}
+                                  onChange={handleInputChange}
+                                />
+                              </div>
+
+                              {/* Product Type and Variant Name */}
+                              <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="productType" className="block mb-1 text-gray-700">
+                                  Product Type
+                                </Label>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Input
+                                      id="productType"
+                                      placeholder="Select type"
+                                      value={selectedType || ""}
+                                      className="w-full p-2 border rounded-lg focus:outline-none col-span-2"
+                                      readOnly
+                                    />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="w-full p-1">
+                                    {productTypes.map((type) => (
+                                      <DropdownMenuItem
+                                        key={type}
+                                        onClick={() => handleSelect(type)}
+                                        className="capitalize cursor-pointer"
+                                      >
+                                        {type}
+                                      </DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <Label className="text-left">Variant Name:</Label>
+                                <Input
+                                  type="text"
+                                  name="variant_name"
+                                  placeholder="Enter variant name"
+                                  className="col-span-2"
+                                  value={product.variant_name}
+                                  onChange={handleInputChange}
+                                />
+                              </div>
+
+                              {/* Variant Color and Price */}
+                              <div className="grid grid-cols-6 items-center gap-4">
+                                <Label className="text-left">Variant Color:</Label>
+                                <Input
+                                  type="text"
+                                  name="var_color"
+                                  placeholder="Enter variant color"
+                                  className="col-span-2"
+                                  value={product.var_color}
+                                  onChange={handleInputChange}
+                                />
+                                <Label className="text-left">Price:</Label>
+                                <Input
+                                  type="number"
+                                  name="price_per_qty"
+                                  placeholder="0.00"
+                                  className="col-span-2"
+                                  value={product.price_per_qty}
+                                  onChange={handleInputChange}
+                                />
+                              </div>
+
+                              {/* Stock Quantity and Shelf Life */}
+                              <div className="grid grid-cols-6 items-center gap-4">
+                                <Label className="text-left">Stock Quantity:</Label>
+                                <Input
+                                  type="number"
+                                  name="stock_qty"
+                                  placeholder="Enter stock quantity"
+                                  className="col-span-2"
+                                  value={batch.stock_qty}
+                                  onChange={handleInputChange}
+                                />
+                                <Label className="text-left">Shelf Life:</Label>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      className="col-span-2 pl-3 text-left font-normal">
+                                        {batch.shelf_life || "Pick a date"}
+                                        <CalendarIcon className="ml-2 h-4 w-4" />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent align="start">
+                                      <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(date) => handleDateChange(date)}
+                                        disabled={(date) => date < new Date("1900-01-01")}
+                                        initialFocus
+                                      />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
                             </div>
-                            {/*Second row */}
-                            <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Name:
-                              </Label>
-                              <Input id="name" placeholder="Enter product name" className="col-span-2" />
-                              <Label className="text-left">
-                                Color:
-                              </Label>
-                              <Input id="color" placeholder="Enter color" className="col-span-2" />
-                            </div>
-                            {/*Third row */}
-                            <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                ID:
-                              </Label>
-                              <Input id="id" placeholder="Enter product id" className="col-span-2" />
-                              <Label className="text-left">
-                                Stock:
-                              </Label>
-                              <Input id="stock" placeholder="Enter quantity" className="col-span-2" />
-                            </div>
-                            {/*Fourth row */}
-                            <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Variant:
-                              </Label>
-                              <Input id="variant" placeholder="Enter product variant" className="col-span-2" />
-                              <Label className="text-left">
-                                Price:
-                              </Label>
-                              <Input id="price" placeholder="0.00" className="col-span-2" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="submit">Save</Button>
-                            <DialogClose asChild>
-                              <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                          </DialogFooter>
+
+                            <DialogFooter>
+                              <Button type="submit">Save</Button>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
                         </DialogContent>
                       </Dialog>
                   </div>
                 </CardHeader>
-                {/*add price per qty and type */}
+               
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="hidden w-[100px] sm:table-cell">
+                        <TableHead className="hidden w-[100px] sm:table-cell cursor-pointer" onClick={handleSortByShelfLife}>
+                          Shelf Life {isShelfLifeAscending ? "↑" : "↓"}
                           <span className="sr-only">Image</span>
                         </TableHead>
                         <TableHead>Batch ID</TableHead>
                         <TableHead>Product ID</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead className="hidden md:table-cell">
-                          Color
+                          Variant
                         </TableHead>
                         <TableHead className="hidden md:table-cell">
-                          Variant
+                          Color
                         </TableHead>
                         <TableHead>Product Type</TableHead>
                         <TableHead>Stock</TableHead>
@@ -370,7 +988,8 @@ export function Inventory() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {products.map((item) => (
+                    {(sortedProducts.length > 0 ? sortedProducts : filteredProducts).length > 0 ? (
+                      (sortedProducts.length > 0 ? sortedProducts : filteredProducts).map((item) => (
                       <TableRow key={item.batch_id}>
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
@@ -381,18 +1000,18 @@ export function Inventory() {
                         <TableCell>
                           {item.prod_id}
                         </TableCell>
-                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.prod_name}</TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {item.color}
+                          {item.variant_name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {item.variant}
+                          {item.var_color}
                         </TableCell>
                         <TableCell>
                           {item.prod_type}
                         </TableCell>
                         <TableCell>
-                          {item.stock}
+                          {item.stock_qty}
                         </TableCell>
                         <TableCell>
                           {item.price_per_qty}
@@ -405,13 +1024,19 @@ export function Inventory() {
                           <Button size="sm" variant="outline" className="h-7 gap-1">
                             <FilePenLine className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="sm" variant="outline" className="h-7 gap-1">
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
+                          <ToastCopyIdButton id={item.prod_id} size="sm" variant="outline" className="h-7 gap-1">
+                            </ToastCopyIdButton>
                         </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                       ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={11} className="text-center">
+                            No products found for this type.
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -423,36 +1048,71 @@ export function Inventory() {
                 <CardHeader className="flex flex-row justify-between">
                   <CardTitle>Inventory</CardTitle>
                   <div className="ml-auto flex items-center gap-2">
+                  <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-7 gap-1">
+                            {selectedMaterialsType || "All"}
+                            <ListFilter className="h-3.5 w-3.5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Show by Type</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuCheckboxItem
+                            checked={!selectedMaterialsType}
+                            onClick={() => setSelectedMaterialsType(null)}
+                          >
+                            All
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedMaterialsType === "Wrapper"}
+                            onClick={() => setSelectedMaterialsType("Wrapper")}
+                          >
+                            Wrapper
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedMaterialsType === "Ribbon"}
+                            onClick={() => setSelectedMaterialsType("Ribbon")}
+                          >
+                            Ribbon
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedMaterialsType === "Crepe"}
+                            onClick={() => setSelectedMaterialsType("Crepe")}
+                          >
+                            Crepe
+                          </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     <Dialog>
                       <DialogTrigger asChild>
                           <Button size="sm" variant="outline" className="h-7 gap-1">
                           <Trash className="h-3.5 w-3.5" />
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Delete Product
+                            Delete Material
                           </span>
                         </Button>
                       </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
-                            <DialogTitle>Remove Product</DialogTitle>
+                            <DialogTitle>Remove Material</DialogTitle>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="name" className="text-left">
-                                Details
-                              </Label>
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="username" className="text-right">
-                                Product:
+                                Material ID:
                               </Label>
-                              <Input id="prod_id" placeholder="Search by product ID or name" className="col-span-3" />
+                              <Input id="mat_id"
+                               placeholder="Search by material ID" 
+                               value={materialId}
+                                onChange={(e) => setMaterialId(e.target.value)}
+                               className="col-span-3" />
                             </div>
                           </div>
                           <DialogFooter>
                             <AlertDialog>
                               <AlertDialogTrigger>
-                                <Button type="submit">Save</Button>
+                                <Button type="button" variant="destructive">Delete</Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -462,7 +1122,7 @@ export function Inventory() {
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogAction>Yes</AlertDialogAction>
+                                  <AlertDialogAction onClick={handleMaterialDeleteConfirmation}>Yes</AlertDialogAction>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -478,53 +1138,76 @@ export function Inventory() {
                         <Button size="sm" className="h-7 gap-1">
                           <PlusCircle className="h-3.5 w-3.5" />
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Add Product
+                            Add Material
                           </span>
                         </Button>
                       </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px]">
+                        <DialogContent className="sm:max-w-[700px]">
+                        <form onSubmit={handleMaterialSubmit}>
                           <DialogHeader>
-                            <DialogTitle>Add Product</DialogTitle>
+                            <DialogTitle>Add Material</DialogTitle>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
                             {/*First row */}
-                            <div className="grid grid-cols-4 items-center gap-4">
+                            <div className="grid grid-cols-6 items-center gap-4">
                               <Label className="text-left">
-                                Details
+                                Material Name:
                               </Label>
+                              <Input 
+                              type="text"
+                              name="mat_name"
+                              placeholder="Enter product name"
+                              className="col-span-2"
+                              value={material.mat_name}
+                              onChange={handleMaterialInputChange} />
+
+                              <Label htmlFor="materialType" className="block mb-1 text-gray-700">
+                                  Material Type
+                                </Label>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Input
+                                      id="materialType"
+                                      placeholder="Select type"
+                                      value={selectedType || ""}
+                                      className="p-2 border rounded-lg focus:outline-none col-span-2"
+                                      readOnly
+                                    />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="w-full p-1">
+                                    {materialTypes.map((type) => (
+                                      <DropdownMenuItem
+                                        key={type.value}
+                                        onClick={() => handleMaterialSelect(type.value)}
+                                        className="capitalize cursor-pointer"
+                                      >
+                                        {type.label}
+                                      </DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+
                             </div>
                             {/*Second row */}
                             <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Name:
-                              </Label>
-                              <Input id="name" placeholder="Enter product name" className="col-span-2" />
-                              <Label className="text-left">
-                                Color:
-                              </Label>
-                              <Input id="color" placeholder="Enter color" className="col-span-2" />
-                            </div>
-                            {/*Third row */}
-                            <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                ID:
-                              </Label>
-                              <Input id="id" placeholder="Enter product id" className="col-span-2" />
-                              <Label className="text-left">
-                                Stock:
-                              </Label>
-                              <Input id="stock" placeholder="Enter quantity" className="col-span-2" />
-                            </div>
-                            {/*Fourth row */}
-                            <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Variant:
-                              </Label>
-                              <Input id="variant" placeholder="Enter product variant" className="col-span-2" />
-                              <Label className="text-left">
-                                Price:
-                              </Label>
-                              <Input id="price" placeholder="0.00" className="col-span-2" />
+                            <Label className="text-left">Color:</Label>
+                                <Input
+                                  type="text"
+                                  name="color"
+                                  placeholder="Enter color"
+                                  className="col-span-2"
+                                  value={material.color}
+                                  onChange={handleMaterialInputChange}
+                                />
+                              <Label className="text-left">Stock Quantity:</Label>
+                                <Input
+                                  type="number"
+                                  name="stock_qty"
+                                  placeholder="Enter stock quantity"
+                                  className="col-span-2"
+                                  value={material.stock_qty}
+                                  onChange={handleMaterialInputChange}
+                                />
                             </div>
                           </div>
                           <DialogFooter>
@@ -533,6 +1216,7 @@ export function Inventory() {
                               <Button variant="outline">Cancel</Button>
                             </DialogClose>
                           </DialogFooter>
+                          </form>
                         </DialogContent>
                       </Dialog>
                   </div>
@@ -559,7 +1243,8 @@ export function Inventory() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {materials.map((item) => (
+                    {filteredMaterials.length > 0 ? (
+                      filteredMaterials.map((item) => (
                       <TableRow key={item.mat_id}> 
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
@@ -569,7 +1254,7 @@ export function Inventory() {
                         </TableCell>
                         <TableCell>{item.mat_name}</TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {item.mat_type_id}
+                          {item.type_name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {item.color}
@@ -588,7 +1273,10 @@ export function Inventory() {
                         </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                     ))
+                    ) : (
+                      <p>No products found for this type.</p>
+                    )}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -600,36 +1288,83 @@ export function Inventory() {
                 <CardHeader className="flex flex-row justify-between">
                   <CardTitle>Inventory</CardTitle>
                   <div className="ml-auto flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-7 gap-1">
+                        {selectedArrangementType || "All"}
+                        <ListFilter className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Show by Type</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuCheckboxItem
+                        checked={!selectedArrangementType}
+                        onClick={() => setSelectedArrangementType(null)}
+                      >
+                        All
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={selectedArrangementType === "Bouquet"}
+                        onClick={() => setSelectedArrangementType("Bouquet")}
+                      >
+                        Bouquet
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={selectedArrangementType === "Funeral"}
+                        onClick={() => setSelectedArrangementType("Funeral")}
+                      >
+                        Funeral
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={selectedArrangementType === "Entourage"}
+                        onClick={() => setSelectedArrangementType("Entourage")}
+                      >
+                        Entourage
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={selectedArrangementType === "Bridal Bouquet"}
+                        onClick={() => setSelectedArrangementType("Bridal Bouquet")}
+                      >
+                        Bridal Bouquet
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={selectedArrangementType === "Funeral Basket"}
+                        onClick={() => setSelectedArrangementType("Funeral Basket")}
+                      >
+                        Funeral Basket
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                     <Dialog>
                       <DialogTrigger asChild>
                           <Button size="sm" variant="outline" className="h-7 gap-1">
                           <Trash className="h-3.5 w-3.5" />
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Delete Product
+                            Delete Arrangement
                           </span>
                         </Button>
                       </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
-                            <DialogTitle>Remove Product</DialogTitle>
+                            <DialogTitle>Remove Arrangement</DialogTitle>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="name" className="text-left">
-                                Details
-                              </Label>
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="username" className="text-right">
-                                Product:
+                                Arrangement ID:
                               </Label>
-                              <Input id="prod_id" placeholder="Search by product ID or name" className="col-span-3" />
+                              <Input id="arrangement_id" 
+                              placeholder="Search by arrangement ID"
+                              value={arrangementId}
+                              onChange={(e) => setArrangementId(e.target.value)}
+                               className="col-span-3" />
                             </div>
                           </div>
                           <DialogFooter>
                             <AlertDialog>
                               <AlertDialogTrigger>
-                                <Button type="submit">Save</Button>
+                                <Button type="button" variant="destructive">Delete</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
@@ -639,7 +1374,7 @@ export function Inventory() {
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
-                                        <AlertDialogAction>Yes</AlertDialogAction>
+                                        <AlertDialogAction onClick={handleArrangementDeleteConfirmation}>Yes</AlertDialogAction>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -655,53 +1390,80 @@ export function Inventory() {
                         <Button size="sm" className="h-7 gap-1">
                           <PlusCircle className="h-3.5 w-3.5" />
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Add Product
+                            Add Arrangement
                           </span>
                         </Button>
                       </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px]">
+                        <DialogContent className="sm:max-w-[700px]">
                           <DialogHeader>
-                            <DialogTitle>Add Product</DialogTitle>
+                            <DialogTitle>Add Arrangement</DialogTitle>
+                            <form onSubmit={handleArrangementSubmit}></form>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
-                            {/*First row */}
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label className="text-left">
-                                Details
-                              </Label>
-                            </div>
-                            {/*Second row */}
+                            {/* Arrangement Name */}
                             <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Name:
-                              </Label>
-                              <Input id="name" placeholder="Enter product name" className="col-span-2" />
-                              <Label className="text-left">
-                                Color:
-                              </Label>
-                              <Input id="color" placeholder="Enter color" className="col-span-2" />
-                            </div>
+                                <Label className="text-left">Arrangement Name:</Label>
+                                <Input
+                                  type="text"
+                                  name="arrangement_name"
+                                  placeholder="Enter arrangement name"
+                                  className="col-span-5"
+                                  value={arrangement.arrangement_name}
+                                  onChange={handleArrangementInputChange}
+                                />
+                              </div>
+                            {/* Product Type and Variant Name */}
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="productType" className="block mb-1 text-gray-700">
+                                  Arrangement Type
+                                </Label>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Input
+                                      id="arrangementType"
+                                      placeholder="Select type"
+                                      value={selectedType || ""}
+                                      className="w-full p-2 border rounded-lg focus:outline-none col-span-2"
+                                      readOnly
+                                    />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="w-full p-1">
+                                    {arrangementTypes.map((type) => (
+                                      <DropdownMenuItem
+                                        key={type.label}
+                                        onClick={() => handleSelect(type.value)}
+                                        className="capitalize cursor-pointer"
+                                      >
+                                        {type.label}
+                                      </DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <Label className="text-left">Price:</Label>
+                                <Input
+                                  type="number"
+                                  name="price"
+                                  placeholder="0.00"
+                                  className="col-span-2"
+                                  value={arrangement.price}
+                                  onChange={handleArrangementInputChange}
+                                />
+                              </div>
                             {/*Third row */}
                             <div className="grid grid-cols-6 items-center gap-4">
                               <Label className="text-left">
-                                ID:
+                                Description:
                               </Label>
-                              <Input id="id" placeholder="Enter product id" className="col-span-2" />
-                              <Label className="text-left">
-                                Stock:
-                              </Label>
-                              <Input id="stock" placeholder="Enter quantity" className="col-span-2" />
+                              <Input 
+                              id="desc" 
+                              placeholder="Enter arrangement description" className="col-span-5" />
                             </div>
                             {/*Fourth row */}
                             <div className="grid grid-cols-6 items-center gap-4">
-                              <Label className="text-left">
-                                Variant:
+                            <Label className="text-left">
+                                Image:
                               </Label>
-                              <Input id="variant" placeholder="Enter product variant" className="col-span-2" />
-                              <Label className="text-left">
-                                Price:
-                              </Label>
-                              <Input id="price" placeholder="0.00" className="col-span-2" />
+
                             </div>
                           </div>
                           <DialogFooter>
@@ -724,10 +1486,7 @@ export function Inventory() {
                         <TableHead>Arrangement ID</TableHead>
                         <TableHead>Arrangement Name</TableHead>
                         <TableHead className="hidden md:table-cell">
-                          Arrangement Type ID
-                        </TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          Product ID
+                          Arrangement Type
                         </TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Description</TableHead>
@@ -739,30 +1498,28 @@ export function Inventory() {
                         </TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
-                    {arrangements.map((item) => (
-                      <TableRow key={item.arr_id}>
+                     <TableBody>
+                     {filteredArrangements.length > 0 ? (
+                        filteredArrangements.map((item) => (
+                      <TableRow key={item.arrangement_id}>
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
                         </TableCell>
                         <TableCell className="font-medium">
-                          {item.arr_id}
+                          {item.arrangement_id}
                         </TableCell>
                         <TableCell>
-                          {item.arr_name}
+                          {item.arrangement_name}
                         </TableCell>
-                        <TableCell>{item.arr_type_id}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.prod_id}
-                        </TableCell>
+                        <TableCell>{item.arrangement_type}</TableCell>
                         <TableCell className="hidden md:table-cell">
                           {item.price}
                         </TableCell>
                         <TableCell>
-                          {item.desc}
+                          {item.description}
                         </TableCell>
                         <TableCell className="font-medium">
-                          {item.num_rev}
+                          {item.num_reviews}
                         </TableCell>
                         <TableCell className="font-medium">
                         <Dialog>
@@ -772,7 +1529,7 @@ export function Inventory() {
                             </Button>
                           </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
-                              <img src={item.img} alt="Product" className="w-full h-auto" onError={() => console.error("Image failed to load: ", item.img)}/>
+                              <img src={item.img_link} alt={item.arrangement_name} className="w-full h-auto" onError={() => console.error("Image failed to load: ", item.img_link)}/>
                             </DialogContent>
                             </Dialog>
                           
@@ -791,8 +1548,11 @@ export function Inventory() {
                         </div>
                         </TableCell>
                       </TableRow>
-                    ))}
-                    </TableBody>
+                        ))
+                      ) : (
+                        <p>No products found for this type.</p>
+                      )}
+                    </TableBody> 
                   </Table>
                 </CardContent>
               </Card>
@@ -803,3 +1563,5 @@ export function Inventory() {
     </div>
   )
 }
+
+export default Inventory;

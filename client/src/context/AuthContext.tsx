@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the role type
-type Role = 'admin' | 'customer' | null;
+type Role = 'super_admin' | 'admin' | 'customer' | null;
 
 type AuthContextType = {
   role: Role;
@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     console.log('Attempting login...');
     try {
-      const response = await fetch('/api/auth', {
+      const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

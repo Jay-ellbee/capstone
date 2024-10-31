@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import HeaderFP from '@/components/HeaderFP';
 import Footer from '@/components/FooterFP';
 import { useCart } from '../context/CartContext';
-import { Checkbox } from '@/components/ui/checkbox';
-
+import { CheckCircle } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -33,13 +32,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription
 } from "@/components/ui/dialog"
 
 import { Label } from "@/components/ui/label"
 
 
-
-const Customization = () => {
+const Checkout: React.FC = () => {
   const { cartItems, getTotalPrice, addToCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('');
   const [isAgreed, setIsAgreed] = useState(false); // State to manage the agreement checkbox
@@ -47,9 +46,9 @@ const Customization = () => {
 
 
   // Temporary sample item for testing
-  // if (cartItems.length === 0) {
-  //   addToCart({ id: 1, name: "Bouquet", price: 3200, quantity: 2, image: "" });
-  // }
+  if (cartItems.length === 0) {
+    addToCart({ id: 1, name: "Bouquet", price: 3200, quantity: 2, image: "/2doz-Ecuador-roses-Php6000.jpg" });
+  }
 
   const [billingDetails, setBillingDetails] = useState({
     firstName: '',
@@ -86,6 +85,8 @@ const Customization = () => {
       alert('Please agree to the terms and conditions before placing the order.');
     }
   };
+
+  const [currentDate] = useState(new Date().toLocaleDateString());
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
@@ -310,27 +311,30 @@ const Customization = () => {
                                 Place Order
                                 </button>
                                   </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Remove Product</DialogTitle>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-left">
-                                      Details
-                                    </Label>
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="username" className="text-right">
-                                      Product:
-                                    </Label>
-                                    <Input id="prod_id" placeholder="Search by product ID or name" className="col-span-3" />
+                                  <DialogContent className="max-w-md mx-auto text-center">
+                                <div className="flex flex-col items-center">
+                                  <CheckCircle className="text-green-500 w-16 h-16 mb-4" />
+                                  <DialogTitle className="text-xl font-bold">Thank you for your order!</DialogTitle>
+                                  <DialogDescription className="mt-2 mb-4 text-sm text-muted-foreground">
+                                    Your order has been successfully placed and is now being processed. If you have any questions, feel free to contact our support team. Thanks for shopping with us!
+                                  </DialogDescription>
+                                </div>
+                                {cartItems.map((item, index) => (
+                                <div className="flex items-center justify-start p-4 bg-gray-100 rounded-md mt-4" key={index}>
+                                  <img src={item.image} alt={item.name} className="w-16 h-16 mr-4" />
+                                  <div className="text-left">
+                                    <p className="text-md font-semibold">{item.name}</p>
+                                    <p className="text-sm text-muted-foreground">Purchase Date: {currentDate}</p>
+                                    <p className="text-sm text-muted-foreground">Order Number: {item.id}</p>
+                                    <p className="text-sm text-muted-foreground">Amount: ₱{getTotalPrice().toFixed(2)}</p>
                                   </div>
                                 </div>
-                                <DialogFooter>
-                                  <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                  </DialogClose>
+                                ))}
+                                 <DialogDescription className="mt-2 mb-4 text-sm text-muted-foreground">
+                                    For further inquiries about your order, please contact us throught our social media accounts. Just present your Order ID and reference ID of the payment.
+                                  </DialogDescription>
+                                <DialogFooter className="mt-6">
+                                  <Button variant="outline" onClick={() => alert('Proceeding to confirmation')}>Okay</Button>
                                 </DialogFooter>
                               </DialogContent>
                             </Dialog> 
@@ -351,4 +355,5 @@ const Customization = () => {
   );
 };
 
-export default Customization;
+
+export default Checkout;
