@@ -1,5 +1,5 @@
 // src/admin/TransactionsPage.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   CalendarIcon,
@@ -57,30 +57,58 @@ import Header from '@/components/Header';   // Import the Header
 
 {/*Use the logic but use the shadcn design hehe */}
 
-interface DataItemReg {
-  id: string;
-  name: string;
+type Customers = {
+  registered_customer_id: string;
+  customer_name: string;
   address: string;
-  city: string;
-  contact: string;
+  phone: string;
+  email: string;
 }
-
-const data: DataItemReg[] = [
-  { id: "RDU0001", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
-  { id: "RDU0002", name: "Bongbong Martes", address: "#543 Iran St.", city: "Caloocan City", contact: "+639454536435" },
-  { id: "RDU0003", name: "Risa Hontiverus", address: "#27 De Jesus", city: "Taguig City", contact: "+639604351205" },
-  { id: "RDU0004", name: "Risa Hontiverus", address: "#27 De Jesus", city: "Taguig City", contact: "+639604351205"},
-  { id: "RDU0005", name: "Bongbong Martes", address: "#543 Iran St.", city: "Caloocan City", contact: "+639454536435" },
-  { id: "RDU0006", name: "Juan Dela Cruz", address: "#423 Saklolo St.", city: "Pasay City", contact: "09764536434" },
-];
 
 const Customers: React.FC = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [data, setData] = React.useState<Customers[]>([]);
+
+  useEffect(() => {
+    async function getCustomers() {
+      try {
+        const customers = await fetchCustomers();
+
+        const customersArray = Array.isArray(customers) ? customers : customers.customers;
+
+        if (Array.isArray(customersArray)) {
+          setData(customersArray);
+        } else {
+          console.error('Invalid customers data format');
+        }
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+      }
+    }
+
+    getCustomers();
+  }, []);
+
+  async function fetchCustomers() {
+    try {
+      const response = await fetch('/api/admin/customers', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      throw error;
+    }
+  }
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       {/*Config ng wide screen na navigation */}
       <Sidebar />  {/* Render the Sidebar */}
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="flex flex-col sm:gap-4 sm:py-0 sm:pl-14">
       <Header /> {/* Render the Header */}
         <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-2">
         <div className="flex justify-between items-center p-4 pb-0">
@@ -101,43 +129,6 @@ const Customers: React.FC = () => {
             </Breadcrumb>
             <div className="flex items-center ml-auto">
               <div className="ml-auto flex items-center gap-2">
-                <Popover>
-                <PopoverTrigger asChild>
-                <Button size="sm" variant="outline" className="h-7 gap-1">
-                  <CalendarIcon className="h-3.5 w-3.5" />
-                </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          className="rounded-md border shadow"
-                          initialFocus
-                        />       
-                </PopoverContent>
-              </Popover>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-7 gap-1">
-                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        All time
-                      </span>
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Show by</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem checked>
-                      This Week
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>This Month</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>
-                      This Year
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
             </div>
@@ -145,50 +136,6 @@ const Customers: React.FC = () => {
               <Card x-chunk="dashboard-06-chunk-0" className="mt-4 ml-6 p-4 bg-gray-50">
                 <CardHeader className="flex flex-row justify-between">
                   <CardTitle>Customers</CardTitle>
-                  <div className="ml-auto flex items-center gap-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 gap-1 text-sm"
-                            >
-                              <ListFilter className="h-3.5 w-3.5" />
-                              <span className="sr-only sm:not-sr-only">Filter</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuCheckboxItem checked>
-                              Bouquet
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem>
-                              Funeral
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem>
-                              Entourage
-                            </DropdownMenuCheckboxItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                <EllipsisVertical className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                   </div>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -197,30 +144,23 @@ const Customers: React.FC = () => {
                         <TableHead>Customer ID</TableHead>
                         <TableHead>Customer Name</TableHead>
                         <TableHead>Address</TableHead>
-                        <TableHead>City / Town</TableHead>
-                        <TableHead >Contact No.</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Email</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {data.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-gray-100">
-                          <TableCell className="font-medium">{item.id}</TableCell>
-                          <TableCell className="font-bold">{item.name}</TableCell>
+                        <TableRow key={item.registered_customer_id} className="hover:bg-gray-100">
+                          <TableCell className="font-medium">{item.registered_customer_id}</TableCell>
+                          <TableCell className="font-bold">{item.customer_name}</TableCell>
                           <TableCell>{item.address}</TableCell>
-                          <TableCell className="hidden md:table-cell">{item.city}</TableCell>
-                          <TableCell className="hidden md:table-cell">{item.contact}</TableCell>
+                          <TableCell className="hidden md:table-cell">{item.phone}</TableCell>
+                          <TableCell className="hidden md:table-cell">{item.email}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center">
-                  <div className="text-xs text-muted-foreground">
-                    Showing <strong>1-10</strong> of <strong>32</strong> products
-                  </div>
-                    <div>
-                    </div>
-                </CardFooter>
               </Card>
           </div>
         </main>

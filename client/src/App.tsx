@@ -1,30 +1,35 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/HomeFP';
 import LoginForm from './pages/Login';
 import SignUpForm from './pages/Signup';
-import ProductList from './pages/ProductList';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Profile from './pages/Profile';
-import Customization from './pages/Customization';
-import Auth from './pages/Auth'; 
+import ProductList from './pages/ProductListFP';
+import ProductDetail from './pages/ProductDetailFP';
+import Cart from './pages/CartFP';
+import Checkout from './pages/CheckoutFP';
+import Profile from './customer/Profile';
+import Customization from './customer/Customization';
 import NotFound from './error/NotFound'; 
 import Dashboard from './admin/AdminDashboard';
 import CompletedOrders from './admin/CompletedOrders';
 import CurrentOrders from './admin/CurrentOrders';
 import CustomerPage from './admin/CustomerPage';
-import { Inventory } from './admin/InventoryPage';
+import Inventory from './admin/InventoryPage';
 import OrdersPage from './admin/OrdersPage';
 import SalesPage from './admin/SalesPage';
 import TransactionsPage from './admin/TransactionsPage';
+import AccountSetup from './customer/AccountSetUp';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import CartProvider from './context/CartContext';
+import AboutUs from './pages/AboutUsFP';
+import { ToastProvider } from './components/ui/toast';
+import { Toast } from '@radix-ui/react-toast';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <CartProvider>
       <Router>
         <Routes>
           {/* Public Pages */}
@@ -32,12 +37,11 @@ const App: React.FC = () => {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/products" element={<ProductList />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/products/:arrangement_id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/customization" element={<Customization />} />
-          <Route path="/auth" element={<Auth />} />
-          
+          <Route path="/customization" element={<Customization />} /> 
+          <Route path="/about-us" element={<AboutUs />} />         
           {/* Protected Customer Routes */}
           <Route
             path="/profile"
@@ -47,12 +51,20 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/account-set-up"
+            element={
+              <ProtectedRoute allowedTypes={['customer']}>
+                <AccountSetup />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Admin Pages - Protected */}
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -60,7 +72,7 @@ const App: React.FC = () => {
           <Route
             path="/admin/completed-orders"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <CompletedOrders />
               </ProtectedRoute>
             }
@@ -68,7 +80,7 @@ const App: React.FC = () => {
           <Route
             path="/admin/current-orders"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <CurrentOrders />
               </ProtectedRoute>
             }
@@ -76,7 +88,7 @@ const App: React.FC = () => {
           <Route
             path="/admin/customers"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <CustomerPage />
               </ProtectedRoute>
             }
@@ -84,15 +96,17 @@ const App: React.FC = () => {
           <Route
             path="/admin/inventory"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
-                <Inventory />
+              <ProtectedRoute allowedTypes={['super_admin']}>
+                <ToastProvider>
+                  <Inventory />
+                </ToastProvider>
               </ProtectedRoute>
             }
           />
           <Route
             path="/admin/orders"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <OrdersPage />
               </ProtectedRoute>
             }
@@ -100,7 +114,7 @@ const App: React.FC = () => {
           <Route
             path="/admin/sales"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <SalesPage />
               </ProtectedRoute>
             }
@@ -108,7 +122,7 @@ const App: React.FC = () => {
           <Route
             path="/admin/transactions"
             element={
-              <ProtectedRoute allowedTypes={['admin']}>
+              <ProtectedRoute allowedTypes={['super_admin']}>
                 <TransactionsPage />
               </ProtectedRoute>
             }
@@ -118,6 +132,7 @@ const App: React.FC = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      </CartProvider>
     </AuthProvider>
   );
 };
