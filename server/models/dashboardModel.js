@@ -4,7 +4,7 @@ const pool = require('../config/database');
 //Function for getting total revenue for the current year
 const getTotalRevenue = async () => {
     try {
-        const [result] = await pool.query('SELECT SUM(price*ord_qty) AS Revenue FROM orders, arrangement WHERE status = "completed"');
+        const [result] = await pool.query('SELECT SUM(price*ord_qty) AS Revenue FROM \`order\`, arrangement WHERE status = "completed"');
         return result;
     } catch (err) {
         throw new Error(`Error fetching total revenue: ${err.message}`);
@@ -49,7 +49,7 @@ const getArrangementAnalytics = async () => {
 
 const getSalesAnalytics = async () => {
     try {
-        const [result] = await pool.query('SELECT COUNT(CASE WHEN MONTH(ord_date) = 1 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS January, COUNT(CASE WHEN MONTH(ord_date) = 2 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS February, COUNT(CASE WHEN MONTH(ord_date) = 3 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS March, COUNT(CASE WHEN MONTH(ord_date) = 4 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS April, COUNT(CASE WHEN MONTH(ord_date) = 5 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS May, COUNT(CASE WHEN MONTH(ord_date) = 6 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS June, COUNT(CASE WHEN MONTH(ord_date) = 7 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS July, COUNT(CASE WHEN MONTH(ord_date) = 8 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS August, COUNT(CASE WHEN MONTH(ord_date) = 9 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS September, COUNT(CASE WHEN MONTH(ord_date) = 10 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS October, COUNT(CASE WHEN MONTH(ord_date) = 11 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS November, COUNT(CASE WHEN MONTH(ord_date) = 12 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS December FROM orders')
+        const [result] = await pool.query('SELECT COUNT(CASE WHEN MONTH(ord_date) = 1 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS January, COUNT(CASE WHEN MONTH(ord_date) = 2 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS February, COUNT(CASE WHEN MONTH(ord_date) = 3 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS March, COUNT(CASE WHEN MONTH(ord_date) = 4 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS April, COUNT(CASE WHEN MONTH(ord_date) = 5 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS May, COUNT(CASE WHEN MONTH(ord_date) = 6 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS June, COUNT(CASE WHEN MONTH(ord_date) = 7 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS July, COUNT(CASE WHEN MONTH(ord_date) = 8 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS August, COUNT(CASE WHEN MONTH(ord_date) = 9 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS September, COUNT(CASE WHEN MONTH(ord_date) = 10 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS October, COUNT(CASE WHEN MONTH(ord_date) = 11 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS November, COUNT(CASE WHEN MONTH(ord_date) = 12 AND YEAR(ord_date) = 2024 AND status = "completed" THEN 1 END) AS December FROM \`order\`')
         return result;
     } catch (err) {
         throw new Error(`Error fetching sales analytics: ${err.message}`);

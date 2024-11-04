@@ -77,6 +77,22 @@ import Header from '@/components/Header';   // Import the Header
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { set } from "date-fns";
 
+// Define types for Forecast, Orders, Revenue, and Customer data
+type ForecastItem = {
+  "Average Sales": string;
+  "Color": string;
+  "Date": string;
+  "Product ID": string;
+  "Product Name": string;
+  "Season End": string;
+  "Season Event": string;
+  "Season Start": string;
+  "Variant": string;
+};
+type DataItem = { order_id: string; arrangement_name: string; ord_qty: number; ord_date: string; status: string; completion_date: string; };
+type Revenue = { Revenue: number; };
+type Customers = { customers: number; };
+
 
 const frameworks = [
   {
@@ -97,23 +113,6 @@ const frameworks = [
   },
 ]
 
-type DataItem = {
-  order_id: string;
-  arrangement_name: string;
-  ord_qty: number;
-  ord_date: string;
-  status: string;
-  completion_date: string;
-}
-
-type Revenue = {
-  Revenue: number;
-}
-
-type Customers = {
-  customers: number;
-}
-
 type ProdAnalysis = {
   Flowers: number;
   Fillers: number;
@@ -121,17 +120,20 @@ type ProdAnalysis = {
 }
 
 const chartConfigProd = {
+  products: {
+    label: "Products",
+  },
   flowers: {
     label: "Flowers",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   fillers: {
     label: "Fillers",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   leaves: {
     label: "Leaves",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
 } satisfies ChartConfig
 
@@ -151,43 +153,43 @@ type MatAnalysis = {
 const chartConfigMat = {
   cellophane: {
     label: "Cellophane",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   tissue: {
     label: "Tissue",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   sinamay: {
     label: "Sinamay",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
   kraft: {
     label: "Kraft",
-    color: "hsl(var(--chart-4))",
+    color: "hsl(351 83% 82%)",
   },
   item: {
     label: "Item",
-    color: "hsl(var(--chart-5))",
+    color: "hsl(349 77% 62%)",
   },
   taupe: {
     label: "Taupe",
-    color: "hsl(var(--chart-6))",
+    color: "hsl(348 75% 66%)",
   },
   nylon: {
     label: "Nylon",
-    color: "hsl(var(--chart-7))",
+    color: "hsl(346 78% 70%)",
   },
   fabric: {
     label: "Fabric",
-    color: "hsl(var(--chart-8))",
+    color: "hsl(345 80% 74%)",
   },
   silk: {
     label: "Silk",
-    color: "hsl(var(--chart-9))",
+    color: "hsl(344 82% 78%)",
   },
   mesh: {
     label: "Mesh",
-    color: "hsl(var(--chart-10))",
+    color: "hsl(343 85% 82%)",
   }
 } satisfies ChartConfig
 
@@ -202,23 +204,23 @@ type ArrAnalysis = {
 const chartConfigArr = {
   bouquet: {
     label: "Bouquet",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   funeral: {
     label: "Funeral",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   entourage: {
     label: "Entourage",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
   "bridal_bouquet": {
     label: "Bridal Bouquet",
-    color: "hsl(var(--chart-4))",
+    color: "hsl(351 83% 82%)",
   },
   "funeral_basket": {
     label: "Funeral Basket",
-    color: "hsl(var(--chart-5))",
+    color: "hsl(349 77% 62%)",
   },
 } satisfies ChartConfig
 
@@ -240,22 +242,19 @@ type SalesAnalysis = {
 const chartConfig1 = {
   sales: {
     label: "Sales",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(349 77% 62%)",
   },
 } satisfies ChartConfig
 
 const Dashboard: React.FC = () => {
-  // const totalVisitors = React.useMemo(() => {
-  //   return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  // }, [])
-
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
-
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [forecastData, setForecastData] = useState<ForecastItem[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [error, setError] = useState<string | null>(null);
   const [currentOrders, setCurrentOrders] = useState<DataItem[]>([]);
   const [completedOrders, setCompletedOrders] = useState<DataItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const rowsToShow = 10;
-
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [openPopovers, setOpenPopovers] = useState<{ [key: string]: boolean }>({});
   
   // FETCHING ORDERS
@@ -506,9 +505,9 @@ const [prodAnalysisData, setProdAnalysisData] = useState<ProdAnalysis[]>([]);
     const [data] = prodAnalysisData;
   
     const transformedData = [
-      { name: "Flowers", value: data.Flowers, fill: "var(--color-flowers)" },
-      { name: "Fillers", value: data.Fillers, fill: "var(--color-fillers)" },
-      { name: "Leaves", value: data.Leaves, fill: "var(--color-leaves)" },
+      { name: "flowers", value: data.Flowers, fill: chartConfigProd.flowers.color },
+      { name: "fillers", value: data.Fillers, fill: chartConfigProd.fillers.color },
+      { name: "leaves", value: data.Leaves, fill: chartConfigProd.leaves.color },
     ];
   
     console.log("Transformed Chart Data:", transformedData); // Debugging transformed data
@@ -550,7 +549,7 @@ const [prodAnalysisData, setProdAnalysisData] = useState<ProdAnalysis[]>([]);
       { name: "Tissue", value: data.Tissue, fill: "var(--color-tissue)" },
       { name: "Sinamay", value: data.Sinamay, fill: "var(--color-sinamay)" },
       { name: "Kraft", value: data.Kraft, fill: "var(--color-kraft)" },
-      { name: "Item", value: data.Item, fill: "var(--color-paper)" },
+      { name: "Item", value: data.Item, fill: "var(--color-item)" },
       { name: "Taupe", value: data.Taupe, fill: "var(--color-taupe)" },
       { name: "Nylon", value: data.Nylon, fill: "var(--color-nylon)" },
       { name: "Fabric", value: data.Fabric, fill: "var(--color-fabric)" },
@@ -595,8 +594,8 @@ const [arrAnalysisData, setArrAnalysisData] = useState<ArrAnalysis[]>([]);
       {name: "Bouquet", value: data.Bouquet, fill: "var(--color-bouquet)"},
       {name: "Funeral", value: data.Funeral, fill: "var(--color-funeral)"},
       {name: "Entourage", value: data.Entourage, fill: "var(--color-entourage)"},
-      {name: "Bridal Bouquet", value: data["Bridal Bouquet"], fill: "var(--color-bridal)"},
-      {name: "Funeral Basket", value: data["Funeral Basket"], fill: "var(--color-funeral-basket)"}
+      {name: "Bridal Bouquet", value: data["Bridal Bouquet"], fill: "var(--color-bridal_bouquet)"},
+      {name: "Funeral Basket", value: data["Funeral Basket"], fill: "var(--color-funeral_basket)"}
     ]
 
     console.log("Transformed Chart Data:", transformedData); // Debugging transformed data
@@ -652,6 +651,37 @@ const [salesAnalysisData, setSalesAnalysisData] = useState<SalesAnalysis[]>([]);
 
   // Calculate the total sales
   const totalSales = chartData1.reduce((acc, item) => acc + (item.sales || 0), 0);
+
+// Fetch forecast data
+useEffect(() => {
+  async function fetchForecast() {
+    try {
+      const response = await fetch(`http://localhost:5000/forecast?month=${selectedMonth}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error(`Failed to fetch forecast data: ${response.statusText}`);
+
+      const data: ForecastItem[] = await response.json();
+      console.log("Fetched forecast data:", data); // Debug fetched data
+      setForecastData(data);
+    } catch (error: any) {
+      console.error("Error fetching forecast data:", error.message);
+      setError("Error fetching forecast data.");
+    }
+  }
+
+  fetchForecast();
+}, [selectedMonth]);
+
+useEffect(() => {
+  console.log("Updated forecastData:", forecastData);
+}, [forecastData]);
+
+// Handle month selection changes
+const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  setSelectedMonth(parseInt(event.target.value, 10));
+};
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -887,7 +917,7 @@ const [salesAnalysisData, setSalesAnalysisData] = useState<SalesAnalysis[]>([]);
                       <Bar
                         dataKey="sales"
                         stackId="a"
-                        fill="var(--color-desktop)"
+                        fill="var(--color-sales)"
                         radius={[0, 0, 4, 4]}
                       />
                      
@@ -996,61 +1026,78 @@ const [salesAnalysisData, setSalesAnalysisData] = useState<SalesAnalysis[]>([]);
                 </CardFooter>
                 </Card>
               </div>
-              <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-1">
-              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1">
-                <Card
-                  className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
-                  >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Suggested Products
-                    </CardTitle>
-                    
-                  </CardHeader>
-                  <CardContent className="flex flex-col justify-center items-center overflow-hidden">
-                    <ScrollArea className="h-80 w-auto rounded-md border">
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      <div className="flex flex-col space-y-3 mb-3">
-                      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                      </div>
-                      </ScrollArea>
-                  </CardContent>
-                  <CardFooter><Button asChild size="sm" className="ml-auto gap-1">
-                    <Link to="/admin/dashboard">
-                      View All
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  </CardFooter>
-                </Card>
-                </div>
-              </div>
+             {/* Forecast Section */}
+             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sales Forecast</CardTitle>
+                  <CardDescription>Predicted sales for the selected month</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4">
+                    <label className="text-sm font-medium">Select Month:</label>
+                    <select
+                      value={selectedMonth}
+                      onChange={handleMonthChange}
+                      className="ml-2 p-2 border rounded-md"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {new Date(0, i).toLocaleString("en-US", { month: "long" })}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    {forecastData.length > 0 ? (
+                      <ul className="space-y-2">
+                        {forecastData.map((item: ForecastItem, index: number) => (
+                          <li key={index} className="bg-gray-100 rounded-md">
+                            {/* Product Name - Accordion Trigger */}
+                            <button
+                              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+                              className="flex justify-between w-full p-2 font-bold text-left focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-md bg-indigo-100 hover:bg-indigo-200"
+                            >
+                              <span>{item["Product Name"]}</span>
+                              <span>{expandedIndex === index ? "-" : "+"}</span>
+                            </button>
+
+                            {/* Accordion Content - Show additional details when expanded */}
+                            {expandedIndex === index && (
+                              <div className="flex flex-col p-4 text-sm bg-gray-50 rounded-b-md">
+                                <span>
+                                  <strong>Average Sales:</strong> {item["Average Sales"]}
+                                </span>
+                                <span>
+                                  <strong>Color:</strong> {item["Color"]}
+                                </span>
+                                <span>
+                                  <strong>Date:</strong> {item["Date"]}
+                                </span>
+                                <span>
+                                  <strong>Season Event:</strong> {item["Season Event"]}
+                                </span>
+                                <span>
+                                  <strong>Season:</strong> {item["Season Start"]} to {item["Season End"]}
+                                </span>
+                                <span>
+                                  <strong>Variant:</strong> {item["Variant"]}
+                                </span>
+                              </div>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No forecast data available or data is still loading...</p>
+                    )}
+                    {error && <p className="text-red-500">{error}</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
           </main>
         </div>
     </div>

@@ -103,17 +103,20 @@ type ProdAnalysis = {
 }
 
 const chartConfigProd = {
+  products: {
+    label: "Products",
+  },
   flowers: {
     label: "Flowers",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   fillers: {
     label: "Fillers",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   leaves: {
     label: "Leaves",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
 } satisfies ChartConfig
 
@@ -133,43 +136,43 @@ type MatAnalysis = {
 const chartConfigMat = {
   cellophane: {
     label: "Cellophane",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   tissue: {
     label: "Tissue",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   sinamay: {
     label: "Sinamay",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
   kraft: {
     label: "Kraft",
-    color: "hsl(var(--chart-4))",
+    color: "hsl(351 83% 82%)",
   },
   item: {
     label: "Item",
-    color: "hsl(var(--chart-5))",
+    color: "hsl(349 77% 62%)",
   },
   taupe: {
     label: "Taupe",
-    color: "hsl(var(--chart-6))",
+    color: "hsl(348 75% 66%)",
   },
   nylon: {
     label: "Nylon",
-    color: "hsl(var(--chart-7))",
+    color: "hsl(346 78% 70%)",
   },
   fabric: {
     label: "Fabric",
-    color: "hsl(var(--chart-8))",
+    color: "hsl(345 80% 74%)",
   },
   silk: {
     label: "Silk",
-    color: "hsl(var(--chart-9))",
+    color: "hsl(344 82% 78%)",
   },
   mesh: {
     label: "Mesh",
-    color: "hsl(var(--chart-10))",
+    color: "hsl(343 85% 82%)",
   }
 } satisfies ChartConfig
 
@@ -184,23 +187,23 @@ type ArrAnalysis = {
 const chartConfigArr = {
   bouquet: {
     label: "Bouquet",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(347 77% 50%)",
   },
   funeral: {
     label: "Funeral",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(352 83% 91%)",
   },
   entourage: {
     label: "Entourage",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(350 80% 72%)",
   },
   "bridal_bouquet": {
     label: "Bridal Bouquet",
-    color: "hsl(var(--chart-4))",
+    color: "hsl(351 83% 82%)",
   },
   "funeral_basket": {
     label: "Funeral Basket",
-    color: "hsl(var(--chart-5))",
+    color: "hsl(349 77% 62%)",
   },
 } satisfies ChartConfig
 
@@ -222,7 +225,7 @@ type SalesAnalysis = {
 const chartConfig1 = {
   sales: {
     label: "Sales",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(349 77% 62%)",
   },
 } satisfies ChartConfig
 
@@ -528,7 +531,7 @@ const [prodAnalysisData, setProdAnalysisData] = useState<ProdAnalysis[]>([]);
       { name: "Tissue", value: data.Tissue, fill: "var(--color-tissue)" },
       { name: "Sinamay", value: data.Sinamay, fill: "var(--color-sinamay)" },
       { name: "Kraft", value: data.Kraft, fill: "var(--color-kraft)" },
-      { name: "Item", value: data.Item, fill: "var(--color-paper)" },
+      { name: "Item", value: data.Item, fill: "var(--color-item)" },
       { name: "Taupe", value: data.Taupe, fill: "var(--color-taupe)" },
       { name: "Nylon", value: data.Nylon, fill: "var(--color-nylon)" },
       { name: "Fabric", value: data.Fabric, fill: "var(--color-fabric)" },
@@ -573,8 +576,8 @@ const [arrAnalysisData, setArrAnalysisData] = useState<ArrAnalysis[]>([]);
       {name: "Bouquet", value: data.Bouquet, fill: "var(--color-bouquet)"},
       {name: "Funeral", value: data.Funeral, fill: "var(--color-funeral)"},
       {name: "Entourage", value: data.Entourage, fill: "var(--color-entourage)"},
-      {name: "Bridal Bouquet", value: data["Bridal Bouquet"], fill: "var(--color-bridal)"},
-      {name: "Funeral Basket", value: data["Funeral Basket"], fill: "var(--color-funeral-basket)"}
+      {name: "Bridal Bouquet", value: data["Bridal Bouquet"], fill: "var(--color-bridal_bouquet)"},
+      {name: "Funeral Basket", value: data["Funeral Basket"], fill: "var(--color-funeral_basket)"}
     ]
 
     console.log("Transformed Chart Data:", transformedData); // Debugging transformed data
@@ -883,7 +886,7 @@ const [salesAnalysisData, setSalesAnalysisData] = useState<SalesAnalysis[]>([]);
                       <Bar
                         dataKey="sales"
                         stackId="a"
-                        fill="var(--color-desktop)"
+                        fill="var(--color-sales)"
                         radius={[0, 0, 4, 4]}
                       />
                      

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Add this package to decode the JWT token
 
-const AccountSetup = () => {
+const AccountSetup: React.FC = () => {
   const [formData, setFormData] = useState({
     street: '',
     apartment: '',
@@ -9,7 +11,9 @@ const AccountSetup = () => {
     zip: '',
     isDefault: false,
   });
+  const navigate = useNavigate();
 
+  // Type the event for handleInputChange as React.ChangeEvent<HTMLInputElement>
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -20,26 +24,38 @@ const AccountSetup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Perform POST request to your server
+  
+    const fullAddress = `${formData.street} ${formData.apartment} ${formData.city}, ${formData.province}`;
+  
     try {
-      const response = await fetch('http://localhost:5500/api/address', {
-        method: 'POST',
+      const token = sessionStorage.getItem('token');
+      if (!token) throw new Error("No token found");
+  
+      // Decode the token to get the registered_customer_id
+      const decoded: { user_id: string } = jwtDecode(token);
+      const registered_customer_id = decoded.user_id;
+  
+      const payload = {
+        registered_customer_id, // Add customer ID
+        address: fullAddress,
+      };
+  
+      const response = await fetch('/api/customer-address', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit the form');
-      }
-
+  
+      if (!response.ok) throw new Error('Failed to update the address');
+  
       const result = await response.json();
       console.log('Server response:', result);
-      // You can handle navigation, showing a success message, etc.
+      navigate('/'); // Redirect or show a success message
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error updating address:', error);
     }
   };
 
@@ -48,7 +64,7 @@ const AccountSetup = () => {
       <div className="w-full max-w-3xl bg-white rounded-[20px] shadow-lg p-8">
         <h2 className="text-2xl font-bold text-center mb-2">Complete Your Account Setup</h2>
         <p className="text-center text-gray-600 mb-6">
-          To complete your account setup, please provide your shipping address.
+          Please provide your shipping address.
         </p>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -117,13 +133,9 @@ const AccountSetup = () => {
             >
               Save and Continue
             </button>
-            <button
-              type="button"
-              className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition-colors"
-              onClick={() => console.log('Skipped')}
-            >
+            <Link to="/" className="px-6 py-2 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-colors">
               Skip For Now
-            </button>
+            </Link>
           </div>
         </form>
       </div>

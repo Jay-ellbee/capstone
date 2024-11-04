@@ -1,15 +1,22 @@
-// utils/idGenerator.js
-const pool = require('../config/database');
+const pool = require('../config/database'); // Ensure this points to the correct database config
 
-// Function to generate a custom ID based on table name and prefix
-const generateCustomId = async (tableName, prefix) => {
+const generateCustomId = async (tableName, prefix, counter = 0) => {
     try {
-        const [rows] = await pool.query(`SELECT COUNT(*) AS count FROM ${tableName}`);
-        const newId = `${prefix}${String(rows[0].count + 1).padStart(5, '0')}`;
+        if (!tableName || !prefix) {
+            throw new Error('Table name and prefix are required');
+        }
+
+        const idColumn = `${tableName}_id`;
+        const query = `SELECT MAX(CAST(SUBSTRING(${idColumn}, LENGTH(?) + 1) AS UNSIGNED)) AS maxId FROM ??;`;
+        const [rows] = await pool.query(query, [prefix, tableName]);
+
+        const nextIdNumber = (rows[0].maxId || 0) + 1 + counter; // Increment based on counter if provided
+        const newId = `${prefix}${String(nextIdNumber).padStart(5, '0')}`;
         return newId;
     } catch (error) {
         throw new Error(`Error generating custom ID: ${error.message}`);
     }
 };
+
 
 module.exports = { generateCustomId };

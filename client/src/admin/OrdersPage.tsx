@@ -107,7 +107,7 @@ const OrdersPage: React.FC = () =>  {
   const [currentOrders, setCurrentOrders] = useState<DataItem[]>([]);
   const [completedOrders, setCompletedOrders] = useState<DataItem[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const rowsToShow = 10;
+  const rowsToShow = 5;
 
   useEffect(() => {
     async function getOrders() {

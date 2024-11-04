@@ -5,9 +5,6 @@ import { Link } from "react-router-dom";
 import { EyeIcon } from "lucide-react"
 import { EyeClosedIcon } from '@radix-ui/react-icons';
 
-export const description =
-  "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account.";
-
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,7 +42,7 @@ export function LoginForm() {
               <input
                 id="email"
                 type="text"
-                placeholder="Enter Email or Username"
+                placeholder="Enter Email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -90,7 +87,7 @@ export function LoginForm() {
         </div>
 
         {/* Right - Sign Up Section */}
-        <div className="w-1/3 bg-gray-100 p-8 relative h-[100%] mt-0 mb-0">
+        <div className="w-1/3 bg-gray-100 p-10 relative h-[100%]">
           <button className="absolute top-4 right-4 text-xl font-bold text-gray-400 hover:text-gray-600">
             <Link to="/">&times;</Link>
           </button>
@@ -98,10 +95,9 @@ export function LoginForm() {
             <div className="mb-4">
               <div className="w-16 h-16 bg-gray-200 mx-auto rounded-full"></div>
             </div>
-            <h2 className="text-2xl font-bold mb-4">Hello!</h2>
+            <h2 className="text-2xl font-bold mb-4">Welcome Back!</h2>
             <p className="text-gray-500 mb-6">
-              Register with your personal details <br />
-              to use all of the site's features.
+            Enter your details to enjoy our full features.
             </p>
             <button className="w-full py-2 border-2 border-gray-600 rounded-full text-gray-600 hover:bg-gray-600 hover:text-white transition-colors">
               <Link to="/signup">

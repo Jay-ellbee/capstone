@@ -4,7 +4,7 @@ import { Twitter, Instagram, Facebook, Linkedin, Mail, Phone } from 'lucide-reac
 
 const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-gray-900 text-gray-400 py-6 px-8 rounded-t-3xl mt-auto">
+    <footer className="w-full bg-rose-950/80 text-white py-6 px-8 rounded-t-3xl mt-auto">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Left Section */}
         <div>

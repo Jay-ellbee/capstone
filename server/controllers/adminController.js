@@ -16,7 +16,7 @@ const loginAdmin = async (req, res) => {
     // Hardcoded super admin credentials
     if (email === 'superadmin@example.com' && password === 'superadminpassword') {
       const token = jwt.sign(
-        { admin_id: 'SA0001', role: 'super_admin' },
+        { admin_id: 'SA00001', role: 'super_admin' },
         process.env.JWT_SECRET_KEY,
         { expiresIn: '1h' }
       );
