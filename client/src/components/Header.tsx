@@ -22,7 +22,7 @@ const Header: React.FC = () => {
           {
             id: '2',
             name: 'Jane Smith',
-            message: 'Your order has been shipped',
+            message: 'I want to order a reception setup for my wedding anniversary',
             phone: '987-654-3210',
             email: 'jane@example.com',
           },
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
 
       const handleLogout = () => {
         logout();  // Call the logout function to clear session data
-        navigate('/login');  // Redirect the user to the login page after logging out
+        navigate('/');  // Redirect the user to the login page after logging out
       };
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 sm:px-6">
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
             />
           </div> */}
 
-        {/* <NotificationsPopover notifications={notifications}/> */}
+        {/* <NotificationsPopover notifications={notifications}/>  */}
 
           {/*Avatar as trigger for the dropdown */}
           <DropdownMenu>

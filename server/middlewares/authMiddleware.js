@@ -8,6 +8,7 @@ dotenv.config();
 const verifyToken = async (req, res, next) => {
   const token = req.header('Authorization');
   if (!token) return res.status(403).json({ msg: 'No token, authorization denied' });
+  
 
   try {
     const bearerToken = token.split(' ')[1];  // Extract the token after 'Bearer'
@@ -53,8 +54,30 @@ const verifyAdmin = async (req, res, next) => {
   }
 };
 
+// Middleware to verify JWT token for customers
+const verifyUser = (req, res, next) => {
+  const token = req.header('Authorization');
+  if (!token) return res.status(403).json({ msg: 'No token, authorization denied' });
+
+  try {
+    const bearerToken = token.split(' ')[1]; // Extract the token after 'Bearer'
+    console.log('Received Token:', bearerToken); // Log received token for debugging
+
+    const decoded = jwt.verify(bearerToken, process.env.JWT_SECRET_KEY);
+    console.log('Decoded Token:', decoded); // Log decoded token for debugging
+
+    // Assuming customers don't have a role field, just attach their ID
+    req.customer = decoded; // Attach customer details to request
+    next();
+  } catch (err) {
+    console.log('Token verification error:', err); // Log any errors in verification
+    res.status(401).json({ msg: 'Token is not valid' });
+  }
+};
+
 module.exports = {
   verifyToken,
   verifySuperAdmin,
-  verifyAdmin
+  verifyAdmin,
+  verifyUser
 };

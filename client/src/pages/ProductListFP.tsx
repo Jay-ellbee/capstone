@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import HeaderFP from "@/components/HeaderFP";
 import Footer from "@/components/FooterFP";
-import { ArrowRight, Search, ArrowDown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ type Bouquet = {
   arrangement_name: string;
   arrangement_type: string;
   price: number;
+  num_sold: number;
   description: string;
   img_link: string;
 };
@@ -27,6 +28,7 @@ type Bouquet = {
 const ProductList: React.FC = () => {
   const [productsData, setProductsData] = useState<Bouquet[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [sortCriteria, setSortCriteria] = useState<'price' | 'num_sold'>('price');
 
   useEffect(() => {
     async function getProducts() {
@@ -40,7 +42,7 @@ const ProductList: React.FC = () => {
 
   async function fetchProducts() {
     try {
-      const response = await fetch('/api/inventory/arrangements', {
+      const response = await fetch('/api/arrangements/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +54,6 @@ const ProductList: React.FC = () => {
       }
   
       const products = await response.json();
-      console.log("Fetched Products:", products); // Log the fetched products
       return products;
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
@@ -60,12 +61,22 @@ const ProductList: React.FC = () => {
   }
 
   // Filter products based on the selected arrangement type
-  const filteredProducts = selectedType
-  ? productsData.filter((product) => {
-      console.log("Product Type:", product.arrangement_type); // Log arrangement_type
-      return product.arrangement_type === selectedType;
-    })
-  : productsData;
+  const filteredProducts = productsData.filter((product) => {
+    return selectedType ? product.arrangement_type === selectedType : true;
+  });
+
+  // Sort products based on the selected criteria
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortCriteria === 'price') {
+      return a.price - b.price; // Sort by price, lowest to highest
+    } else {
+      return b.num_sold - a.num_sold; // Sort by num_sold, highest to lowest
+    }
+  });
+
+  const handleSortChange = (criteria: 'price' | 'num_sold') => {
+    setSortCriteria(criteria);
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
@@ -75,15 +86,32 @@ const ProductList: React.FC = () => {
           <h1 className="text-3xl font-semibold mb-6">Our Products</h1>
 
           <div className="flex-1"></div>
-
-          <div className="relative md:w-[200px] lg:w-[320px]">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full rounded-lg bg-background pl-8"
-            />
-          </div>
+          
+          {/* Sorting Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-1">
+                Sort by: {sortCriteria === 'price' ? 'Price (Lowest to Highest)' : 'Most Sold'}
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Sort Options</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={sortCriteria === 'price'}
+                onClick={() => handleSortChange('price')}
+              >
+                Price (Lowest to Highest)
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={sortCriteria === 'num_sold'}
+                onClick={() => handleSortChange('num_sold')}
+              >
+                Most Sold
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="flex items-center space-x-2">
             <h1 className="text-base ">Filter By Type:</h1>
@@ -135,31 +163,36 @@ const ProductList: React.FC = () => {
                 >
                   Funeral Basket
                 </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={selectedType === "Funeral Urn"}
+                  onClick={() => setSelectedType("Funeral Urn")}
+                >
+                  Funeral Urn
+                </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:gap-8">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <Card key={product.arrangement_id}>
-                <CardHeader className="pb-2">
-                  <img src={product.img_link} alt={product.arrangement_name} className="w-full h-60 rounded object-cover" />
-                  <CardTitle className="text-left mt-6 mb-0">{product.arrangement_name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-left text-lg font-semibold">₱{product.price.toFixed(2)}</p>
-                </CardContent>
-                <CardFooter>
-                  <Link to={`/products/${product.arrangement_id}`} className="ml-auto">
-                    <Button className="w-full" variant="ghost">
-                      View Details
-                      <ArrowRight className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
+        <div className="grid grid-cols-1 gap-2 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:gap-8">
+          {sortedProducts.length > 0 ? (
+            sortedProducts.map((product) => (
+              <Link to={`/products/${product.arrangement_id}`} key={product.arrangement_id}>
+                <Card className="shadow-md hover:shadow-lg">
+                  <CardHeader className="pb-2 p-0">
+                    <img src={product.img_link} alt={product.arrangement_name} className="w-full h-60 rounded object-cover" />
+                  </CardHeader>
+                  <CardContent>
+                    <CardTitle className="text-left text-default md:text-lg pt-2 mb-0 line-clamp-1">
+                      {product.arrangement_name}
+                    </CardTitle>
+                    <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-left text-md font-semibold">₱{product.price.toFixed(2)}</p>
+                  </CardFooter>
+                </Card>
+              </Link>
             ))
           ) : (
             <p>No products found for this type.</p>

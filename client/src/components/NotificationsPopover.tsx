@@ -51,9 +51,7 @@ const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({ notificatio
                           <CircleUser className="h-5 w-5" />
                         </div>
                         <div className="col-span-4">
-                          <span className="font-bold">{notification.name}</span>
-                          <span className="m-2">{notification.message}</span>
-                        </div>
+                          <span className="font-bold">{notification.name}</span>                        </div>
                       </div>
                       <ChevronDown className="w-4 h-4" />
                     </AccordionTrigger>
@@ -63,6 +61,7 @@ const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({ notificatio
                         <p><strong>Name:</strong> {notification.name}</p>
                         <p><strong>Phone:</strong> {notification.phone}</p>
                         <p><strong>Email:</strong> {notification.email}</p>
+                        <p><strong>Message:</strong> {notification.message}</p>
                       </div>
                     </AccordionContent>
                   </AccordionItem>

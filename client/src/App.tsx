@@ -24,8 +24,8 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import CartProvider from './context/CartContext';
 import AboutUs from './pages/AboutUsFP';
 import { ToastProvider } from './components/ui/toast';
-import { Toast } from '@radix-ui/react-toast';
-
+import Services from './pages/Services';
+import ContactUs from './pages/ContactUs';
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -40,8 +40,9 @@ const App: React.FC = () => {
           <Route path="/products/:arrangement_id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/customization" element={<Customization />} /> 
-          <Route path="/about-us" element={<AboutUs />} />         
+          <Route path="/about-us" element={<AboutUs />} /> 
+          <Route path="/services" element={<Services />} />    
+          <Route path="/contact-us" element={<ContactUs />} />    
           {/* Protected Customer Routes */}
           <Route
             path="/profile"
@@ -59,6 +60,14 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/customization"
+            element={
+              <ProtectedRoute allowedTypes={['customer']}>
+                <Customization />
+              </ProtectedRoute>
+            } 
+            />
           
           {/* Admin Pages - Protected */}
           <Route

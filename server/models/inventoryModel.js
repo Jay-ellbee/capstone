@@ -18,7 +18,7 @@ const getAllProducts = async () => {
     const [results] = await pool.query(`
       SELECT 
         batch.batch_id, 
-        prod_id, 
+        product_id, 
         prod_name, 
         variant_name, 
         var_color, 
@@ -38,7 +38,7 @@ const getAllProducts = async () => {
 // Delete a single product item
 const deleteProduct = async (productId) => {
   try {
-    const [result] = await pool.query('DELETE FROM product WHERE prod_id = ?', [productId]);
+    const [result] = await pool.query('DELETE FROM product WHERE product_id = ?', [productId]);
     return result;
   } catch (err) {
     throw new Error(`Error deleting inventory item with ID ${productId}: ${err.message}`);
@@ -69,10 +69,10 @@ const insertBatch = async (batch) => {
 
 const insertProduct = async (product) => {
   try {
-      const prod_id = await generateCustomId('product', 'PR');
-      const query = 'INSERT INTO product (prod_id, prod_name, prod_type, batch_id, variant_name, var_color, price_per_qty, timestamp_crt) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
-      await pool.query(query, [prod_id, product.prod_name, product.prod_type, product.batch_id, product.variant_name, product.var_color, product.price_per_qty]);
-      return { prod_id, ...product };
+      const product_id = await generateCustomId('product', 'PR');
+      const query = 'INSERT INTO product (product_id, prod_name, prod_type, batch_id, variant_name, var_color, price_per_qty, timestamp_crt) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
+      await pool.query(query, [product_id, product.prod_name, product.prod_type, product.batch_id, product.variant_name, product.var_color, product.price_per_qty]);
+      return { product_id, ...product };
   } catch (error) {
       throw new Error(`Error inserting product: ${error.message}`);
   }
@@ -81,7 +81,7 @@ const insertProduct = async (product) => {
 //Get all of the materials 
 const getAllMaterials = async () => {
   try {
-    const [results] = await pool.query(`SELECT mat_id, mat_name, type_name, color, stock_qty FROM material, material_type WHERE material.material_type_id = material_type.material_type_id;`);
+    const [results] = await pool.query(`SELECT material_id, mat_name, type_name, color, stock_qty FROM material, material_type WHERE material.material_type_id = material_type.material_type_id;`);
     return results;
   } catch (err) {
     throw new Error(`Error fetching materials: ${err.message}`);
@@ -90,7 +90,7 @@ const getAllMaterials = async () => {
 
 const deleteMaterial = async (materialId) => {
   try {
-    const [result] = await pool.query('DELETE FROM material WHERE mat_id = ?', [materialId]);
+    const [result] = await pool.query('DELETE FROM material WHERE material_id = ?', [materialId]);
     return result;
   } catch (err) {
     throw new Error(`Error deleting material item with ID ${materialId}: ${err.message}`);
@@ -99,10 +99,10 @@ const deleteMaterial = async (materialId) => {
 
 const insertMaterial = async (material) => {
   try {
-      const mat_id = await generateCustomId('material', 'MA');
-      const query = 'INSERT INTO material (mat_id, mat_name, material_type_id, color, stock_qty) VALUES (?, ?, ?, ?, ?)';
-      await pool.query(query, [mat_id, material.mat_name, material.material_type_id, material.color, material.stock_qty]);
-      return mat_id; // Return generated batch_id
+      const material_id = await generateCustomId('material', 'MA');
+      const query = 'INSERT INTO material (material_id, mat_name, material_type_id, color, stock_qty) VALUES (?, ?, ?, ?, ?)';
+      await pool.query(query, [material_id, material.mat_name, material.material_type_id, material.color, material.stock_qty]);
+      return material_id; // Return generated batch_id
   } catch (error) {
       throw new Error(`Error inserting material: ${error.message}`);
   }

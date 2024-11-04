@@ -6,7 +6,7 @@ const { generateCustomId } = require('../utils/idGenerator');
 const getAllTransactions = async () => {
     try {
       const [results] = await pool.query(
-        'SELECT t.transaction_id, t.date, t.reference_id, o.order_id, t.registered_customer_id, t.rec_name, t.address, a.price * o.ord_qty as total FROM orders AS o JOIN transaction_order_linking AS tol ON o.order_id = tol.order_id JOIN transaction AS t ON t.transaction_id = tol.transaction_id JOIN arrangement AS a ON o.arrangement_id = a.arrangement_id');
+        'SELECT t.transaction_id, t.date, t.reference_id, o.order_id, t.registered_customer_id, t.rec_name, t.address, a.price * o.ord_qty as total FROM \`order\` AS o JOIN transaction_order_linking AS tol ON o.order_id = tol.order_id JOIN transaction AS t ON t.transaction_id = tol.transaction_id JOIN arrangement AS a ON o.arrangement_id = a.arrangement_id');
       return results;
     } catch (err) {
       throw new Error(`Error fetching transactions: ${err.message}`);
@@ -69,7 +69,7 @@ const getAllTransactions = async () => {
   // Get Current month sales
   const getCurrentMonthSales = async () => {
     try {
-      const [results] = await pool.query('SELECT COALESCE(SUM(arrangement.price * orders.ord_qty), 0) AS total_sales FROM orders JOIN arrangement ON orders.arrangement_id = arrangement.arrangement_id WHERE orders.status = "completed" AND YEAR(orders.ord_date) = YEAR(CURRENT_DATE()) AND MONTH(orders.ord_date) = MONTH(CURRENT_DATE());'
+      const [results] = await pool.query('SELECT COALESCE(SUM(arrangement.price * order.ord_qty), 0) AS total_sales FROM \`order\` JOIN arrangement ON order.arrangement_id = arrangement.arrangement_id WHERE order.status = "completed" AND YEAR(order.ord_date) = YEAR(CURRENT_DATE()) AND MONTH(order.ord_date) = MONTH(CURRENT_DATE());'
       );
       return results;
     } catch (err) {
@@ -80,7 +80,7 @@ const getAllTransactions = async () => {
   // Get Current week sales
   const getCurrentWeekSales = async () => {
     try { 
-      const [result] = await pool.query('SELECT COALESCE(SUM(arrangement.price * orders.ord_qty), 0) AS weekly_sales FROM orders JOIN arrangement ON orders.arrangement_id = arrangement.arrangement_id WHERE orders.status = "completed" AND YEAR(orders.ord_date) = YEAR(CURRENT_DATE()) AND MONTH(orders.ord_date) = MONTH(CURRENT_DATE()) AND WEEK(orders.ord_date, 1) = WEEK(CURRENT_DATE(), 1);')
+      const [result] = await pool.query('SELECT COALESCE(SUM(arrangement.price * order.ord_qty), 0) AS weekly_sales FROM \`order\` JOIN arrangement ON order.arrangement_id = arrangement.arrangement_id WHERE order.status = "completed" AND YEAR(order.ord_date) = YEAR(CURRENT_DATE()) AND MONTH(order.ord_date) = MONTH(CURRENT_DATE()) AND WEEK(order.ord_date, 1) = WEEK(CURRENT_DATE(), 1);')
       return result;
     } catch (err) {
       throw new Error(`Error fetching current week sales: ${err.message}`);

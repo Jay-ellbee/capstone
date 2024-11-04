@@ -11,7 +11,7 @@ router.get('/orders/',orderController.getAllOrders);
 router.get('/orders/:orderId', orderController.getOrderById);
 
 // Route to create a new order
-router.post('/orders/', orderController.createOrder);
+router.post('/place-order', orderController.placeOrder);
 
 // Route to update an existing order
 router.put('/orders/:orderId', orderController.updateOrder);
@@ -22,5 +22,6 @@ router.delete('/orders/:orderId', orderController.deleteOrder);
 
 // Route to get orders by date
 router.get('/orders', orderController.getOrdersByDate);
+
 
 module.exports = router;

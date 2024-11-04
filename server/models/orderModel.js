@@ -6,17 +6,17 @@ const { generateCustomId } = require('../utils/idGenerator');
 const getAllOrders = async () => {
   try {
     const [result] = await pool.query(
-      'SELECT order_id, arrangement_name, type_name, ord_qty, ord_date, status, completion_date FROM orders, arrangement, arrangement_type WHERE orders.arrangement_id = arrangement.arrangement_id AND arrangement.arrangement_type_id = arrangement_type.arrangement_type_id');
+      'SELECT order_id, arrangement_name, type_name, ord_qty, ord_date, status, completion_date FROM \`order\`, arrangement, arrangement_type WHERE order.arrangement_id = arrangement.arrangement_id AND arrangement.arrangement_type_id = arrangement_type.arrangement_type_id');
     return result;
   } catch (err) {
-    throw new Error(`Error fetching orders: ${err.message}`);
+    throw new Error(`Error fetching order: ${err.message}`);
   }
 };
 
 // Get a single order by order_id
 const getOrderById = async (order_id) => {
   try {
-    const [result] = await pool.query('SELECT * FROM orders WHERE order_id = ?', [order_id]);
+    const [result] = await pool.query('SELECT * FROM \`order\` WHERE order_id = ?', [order_id]);
     return result[0] || null; // Return null if no order found
   } catch (err) {
     throw new Error(`Error fetching order with ID ${order_id}: ${err.message}`);
@@ -27,10 +27,10 @@ const getOrderById = async (order_id) => {
 const createOrder = async (orderData) => {
   try {
     const { arrangement_id, ord_qty } = orderData;
-    const order_id = await generateCustomId('orders', 'OR');
+    const order_id = await generateCustomId('order', 'OR');
 
     const [result] = await pool.query(
-      'INSERT INTO orders (order_id, arrangement_id, ord_qty) VALUES (?, ?, ?)',
+      'INSERT INTO \`order\` (order_id, arrangement_id, ord_qty) VALUES (?, ?, ?)',
       [order_id, arrangement_id, ord_qty]
     );
     return { order_id, arrangement_id, ord_qty };
@@ -45,7 +45,7 @@ const updateOrder = async (order_id, updatedData) => {
     const { status, completion_date, ord_qty } = updatedData;
 
     const [result] = await pool.query(
-      'UPDATE orders SET status = ?, completion_date = ?, ord_qty = ? WHERE order_id = ?',
+      'UPDATE \`order\` SET status = ?, completion_date = ?, ord_qty = ? WHERE order_id = ?',
       [status, completion_date, ord_qty, order_id]
     );
     return result;
@@ -60,7 +60,7 @@ const updateOrderStatus = async (order_id, updatedData) => {
     const { status} = updatedData;
 
     const [result] = await pool.query(
-      'UPDATE orders SET status = ? WHERE order_id = ?',
+      'UPDATE \`order\` SET status = ? WHERE order_id = ?',
       [status, order_id]
     );
     return result;
@@ -72,7 +72,7 @@ const updateOrderStatus = async (order_id, updatedData) => {
 // Delete an order
 const deleteOrder = async (order_id) => {
   try {
-    const [result] = await pool.query('DELETE FROM orders WHERE order_id = ?', [order_id]);
+    const [result] = await pool.query('DELETE FROM \`order\` WHERE order_id = ?', [order_id]);
     return result;
   } catch (err) {
     throw new Error(`Error deleting order with ID ${order_id}: ${err.message}`);
@@ -83,13 +83,25 @@ const deleteOrder = async (order_id) => {
 const getOrdersByDate = async(date) => {
   try {
     const [orders] = await pool.query(
-      'SELECT * FROM orders WHERE DATE(ord_date) = ?',
+      'SELECT * FROM \`order\` WHERE DATE(ord_date) = ?',
       [date]
     );
     return orders;
   } catch (error) {
     throw new Error(`Error fetching orders: ${error.message}`);
   }
+};
+
+const Order = {
+  getOrdersByCustomerId: async (registered_customer_id) => {
+      const [orders] = await db.query(
+          `SELECT o.order_id, o.arrangement_id, o.ord_date, o.status, o.completion_date, o.ord_qty
+           FROM orders o
+           WHERE o.registered_customer_id = ?`,
+          [registered_customer_id]
+      );
+      return orders;
+  },
 };
 
 module.exports = {
@@ -99,5 +111,6 @@ module.exports = {
   updateOrder,
   updateOrderStatus,
   deleteOrder,
-  getOrdersByDate
+  getOrdersByDate,
+  Order
 };

@@ -91,7 +91,7 @@ import { ToastCopyIdButton } from '@/components/ToastCopyId';
 
   type ProductsItem = {
     batch_id: string;
-    prod_id: string;
+    product_id: string;
     prod_name: string;
     variant_name: string;
     var_color: string;
@@ -102,7 +102,7 @@ import { ToastCopyIdButton } from '@/components/ToastCopyId';
   }
 
   type MaterialItem = {
-    mat_id: string;
+    material_id: string;
     mat_name: string;
     type_name: string;
     color: string;
@@ -238,7 +238,7 @@ const deleteProduct = async (id: string) => {
     console.log(`Product with ID ${id} deleted successfully`);
     
     // Automatically update products data by filtering out the deleted product
-    setProductsData((prevData) => prevData.filter((product) => product.prod_id !== id));
+    setProductsData((prevData) => prevData.filter((product) => product.product_id !== id));
   } catch (error) {
     console.error('Error deleting product:', error);
   }
@@ -404,7 +404,7 @@ const handleDeleteByBatchConfirmation = () => {
       console.log(`Material with ID ${id} deleted successfully`);
       
       // Automatically update products data by filtering out the deleted product
-      setMaterialsData((prevData) => prevData.filter((material) => material.mat_id !== id));
+      setMaterialsData((prevData) => prevData.filter((material) => material.material_id !== id));
     } catch (error) {
       console.error('Error deleting product:', error);
     }
@@ -743,7 +743,7 @@ const handleSortByShelfLife = () => {
                               <Label htmlFor="username" className="text-right">
                                 Product ID:
                               </Label>
-                              <Input id="prod_id" 
+                              <Input id="product_id" 
                               placeholder="Search by product ID" 
                               value={productId}
                               onChange={(e) => setProductId(e.target.value)}
@@ -794,7 +794,7 @@ const handleSortByShelfLife = () => {
                               <Label htmlFor="username" className="text-right">
                                 Batch ID:
                               </Label>
-                              <Input id="prod_id" 
+                              <Input id="product_id" 
                               placeholder="Search by batch ID" 
                               value={productBatchId}
                               onChange={(e) => setProductBatchId(e.target.value)}
@@ -998,7 +998,7 @@ const handleSortByShelfLife = () => {
                           {item.batch_id}
                         </TableCell>
                         <TableCell>
-                          {item.prod_id}
+                          {item.product_id}
                         </TableCell>
                         <TableCell>{item.prod_name}</TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -1021,10 +1021,10 @@ const handleSortByShelfLife = () => {
                         </TableCell>
                         <TableCell>
                         <div className="ml-auto flex items-center gap-2">
-                          <Button size="sm" variant="outline" className="h-7 gap-1">
+                          {/* <Button size="sm" variant="outline" className="h-7 gap-1">
                             <FilePenLine className="h-3.5 w-3.5" />
-                          </Button>
-                          <ToastCopyIdButton id={item.prod_id} size="sm" variant="outline" className="h-7 gap-1">
+                          </Button> */}
+                          <ToastCopyIdButton id={item.product_id} size="sm" variant="outline" className="h-7 gap-1">
                             </ToastCopyIdButton>
                         </div>
                         </TableCell>
@@ -1102,7 +1102,7 @@ const handleSortByShelfLife = () => {
                               <Label htmlFor="username" className="text-right">
                                 Material ID:
                               </Label>
-                              <Input id="mat_id"
+                              <Input id="material_id"
                                placeholder="Search by material ID" 
                                value={materialId}
                                 onChange={(e) => setMaterialId(e.target.value)}
@@ -1245,12 +1245,12 @@ const handleSortByShelfLife = () => {
                     <TableBody>
                     {filteredMaterials.length > 0 ? (
                       filteredMaterials.map((item) => (
-                      <TableRow key={item.mat_id}> 
+                      <TableRow key={item.material_id}> 
                         <TableCell className="hidden sm:table-cell">
                           <Checkbox id="item1" />
                         </TableCell>
                         <TableCell className="font-medium">
-                          {item.mat_id}
+                          {item.material_id}
                         </TableCell>
                         <TableCell>{item.mat_name}</TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -1264,9 +1264,9 @@ const handleSortByShelfLife = () => {
                         </TableCell>
                         <TableCell>
                         <div className="ml-auto flex items-center gap-2">
-                          <Button size="sm" variant="outline" className="h-7 gap-1">
+                          {/* <Button size="sm" variant="outline" className="h-7 gap-1">
                             <FilePenLine className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button> */}
                           <Button size="sm" variant="outline" className="h-7 gap-1">
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
@@ -1386,14 +1386,14 @@ const handleSortByShelfLife = () => {
                         </DialogContent>
                       </Dialog>
                     <Dialog>
-                      <DialogTrigger asChild>
+                      {/* <DialogTrigger asChild>
                         <Button size="sm" className="h-7 gap-1">
                           <PlusCircle className="h-3.5 w-3.5" />
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                             Add Arrangement
                           </span>
                         </Button>
-                      </DialogTrigger>
+                      </DialogTrigger> */}
                         <DialogContent className="sm:max-w-[700px]">
                           <DialogHeader>
                             <DialogTitle>Add Arrangement</DialogTitle>
@@ -1539,9 +1539,9 @@ const handleSortByShelfLife = () => {
                         </TableCell>
                         <TableCell>
                         <div className="ml-auto flex items-center gap-2">
-                          <Button size="sm" variant="outline" className="h-7 gap-1">
+                          {/* <Button size="sm" variant="outline" className="h-7 gap-1">
                             <FilePenLine className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button> */}
                           <Button size="sm" variant="outline" className="h-7 gap-1">
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
