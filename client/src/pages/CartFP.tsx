@@ -21,16 +21,19 @@ import { Link, useNavigate } from 'react-router-dom';
 
 
 const Cart: React.FC = () => {
-  const { cartItems, removeFromCart, getTotalPrice, addToCart } = useCart();
+  const { cartItems, removeFromCart, setCartItems, getTotalPrice, addToCart } = useCart();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const navigate = useNavigate();
 
   const adjustQuantity = (id: string, amount: number) => {
-    const item = cartItems.find(item => item.id === id);
-    if (item) {
-      addToCart({ ...item, quantity: item.quantity + amount });
-    }
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + amount) }
+          : item
+      )
+    );
   };
 
   const handleSelectAll = () => {

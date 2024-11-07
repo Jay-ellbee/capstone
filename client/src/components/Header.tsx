@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, Search, CircleUser, Package2, Home, ShoppingCart, Package, Users2, CreditCard, LineChart, Bell,  } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,23 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import NotificationsPopover from './NotificationsPopover';
 
 const Header: React.FC = () => {
-    const [notifications] = useState([
-        {
-            id: '1',
-            name: 'John Doe',
-            message: 'New order placed',
-            phone: '123-456-7890',
-            email: 'john@example.com',
-          },
-          {
-            id: '2',
-            name: 'Jane Smith',
-            message: 'I want to order a reception setup for my wedding anniversary',
-            phone: '987-654-3210',
-            email: 'jane@example.com',
-          },
-      ]);
-
+  const [notifications, setNotifications] = useState<Notification[]>([]);
       const { logout } = useAuth();
       const navigate = useNavigate();
 
@@ -113,13 +97,13 @@ const Header: React.FC = () => {
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
             />
           </div> */}
-
-        {/* <NotificationsPopover notifications={notifications}/>  */}
+        <div className='ml-auto'></div>
+        <NotificationsPopover /> 
 
           {/*Avatar as trigger for the dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="icon" className="rounded-full ml-auto">
+            <Button variant="secondary" size="icon" className="rounded-full">
                 <CircleUser className="h-5 w-5" />
                 <span className="sr-only">Toggle user menu</span>
               </Button>

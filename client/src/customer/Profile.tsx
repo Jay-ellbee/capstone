@@ -18,14 +18,15 @@ type CustomerData = {
 };
 
 type OrderData = {
-  orderId: string;
-  arrangementName: string;
-  quantity: number;
+  order_id: string;
+  arrangement_name: string;
   status: string;
-  price: number;
+  completion_date: string;
+  ord_qty: number;
+  total: number;
 };
 
-const Profile = () => {
+const Profile: React.FC = () => {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [editableData, setEditableData] = useState<CustomerData | null>(null);
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -70,27 +71,44 @@ const Profile = () => {
     fetchCustomerData();
   }, [navigate]);
 
-  const fetchOrders = async () => {
-    try {
+  useEffect(() => {
+    const fetchOrders = async () => {
       const token = sessionStorage.getItem('token');
-      const response = await fetch('/api/orders', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const role = sessionStorage.getItem('role');
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders.');
+      // Redirect to login if token is missing or role is not "customer"
+      if (!token || role !== 'customer') {
+        navigate('/login');
+        return;
       }
 
-      const data: OrderData[] = await response.json();
-      setOrders(data);
-    } catch (error) {
-      setError('Unable to load orders.');
-    }
-  };
+      try {
+        const response = await fetch('/api/me/orders', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+       // Check if the response is okay
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch orders: ${errorText}`);
+        }
+
+        // Parse and set the orders data
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        setError('Unable to load orders.');
+      }
+    };
+
+    fetchOrders();
+  }, [navigate]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -146,6 +164,11 @@ const Profile = () => {
   if (error) return <div>{error}</div>;
   if (!customerData || !editableData) return <div>No customer data available.</div>;
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric'}).format(date);
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
       <HeaderFP />
@@ -156,7 +179,7 @@ const Profile = () => {
           <Tabs defaultValue="manage" className="flex gap-6">
             <TabsList className="w-1/4 flex flex-col rounded-lg bg-gray-100 p-4 space-y-2 h-1/2">
               <TabsTrigger value="manage" className="w-full text-left">Manage Account</TabsTrigger>
-              <TabsTrigger value="orders" className="w-full text-left" onClick={fetchOrders}>My Orders</TabsTrigger>
+              <TabsTrigger value="orders" className="w-full text-left">My Orders</TabsTrigger>
             </TabsList>
 
             <div className="flex-grow p-0">
@@ -231,21 +254,23 @@ const Profile = () => {
                       <table className="min-w-full bg-white">
                         <thead>
                           <tr>
-                            <th className="py-2 px-4">Order ID</th>
-                            <th className="py-2 px-4">Arrangement Name</th>
-                            <th className="py-2 px-4">Quantity</th>
-                            <th className="py-2 px-4">Status</th>
-                            <th className="py-2 px-4">Price</th>
+                            <th className="py-2 pr-4">Order ID</th>
+                            <th className="py-2 pr-4">Arrangement Name</th>
+                            <th className="py-2 pr-4">Status</th>
+                            <th className="py-2 pr-4">Delivery Date</th>
+                            <th className="py-2 pr-4">Quantity</th>
+                            <th className="py-2 pr-4">Price</th>
                           </tr>
                         </thead>
                         <tbody>
                           {orders.map((order) => (
-                            <tr key={order.orderId}>
-                              <td className="py-2 px-4">{order.orderId}</td>
-                              <td className="py-2 px-4">{order.arrangementName}</td>
-                              <td className="py-2 px-4">{order.quantity}</td>
+                            <tr key={order.order_id}>
+                              <td className="py-2 px-4">{order.order_id}</td>
+                              <td className="py-2 px-4">{order.arrangement_name}</td>
                               <td className="py-2 px-4">{order.status}</td>
-                              <td className="py-2 px-4">₱{order.price.toFixed(2)}</td>
+                              <td className="py-2 px-4">{formatDate(order.completion_date)}</td>
+                              <td className="py-2 px-4">{order.ord_qty}</td>
+                              <td className="py-2 px-4">₱{order.total.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>

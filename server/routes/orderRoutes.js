@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
-const { verifyToken, verifyAdmin } = require('../middlewares/authMiddleware');
+const { verifyToken, verifyAdmin, verifyUser } = require('../middlewares/authMiddleware');
 
 // Route to get all orders
 router.get('/orders/',orderController.getAllOrders);
@@ -23,5 +23,6 @@ router.delete('/orders/:orderId', orderController.deleteOrder);
 // Route to get orders by date
 router.get('/orders', orderController.getOrdersByDate);
 
+router.get('/me/orders',verifyUser, orderController.getOrders);
 
 module.exports = router;

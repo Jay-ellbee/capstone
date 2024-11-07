@@ -1030,8 +1030,8 @@ const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sales Forecast</CardTitle>
-                  <CardDescription>Predicted sales for the selected month</CardDescription>
+                  <CardTitle>Priority Stock Products</CardTitle>
+                  <CardDescription>Sales Forecast</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="mb-4">

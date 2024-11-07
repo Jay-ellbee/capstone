@@ -82,14 +82,14 @@ const Landing: React.FC = () => {
     <main className="p-4 sm:px-16 sm:py-8 md:px-22 lg:px-32 grid gap-6">
       {/*first row - containts the search bar */}
       <div className="grid auto-rows-max items-start gap-4 md:gap-8">         
-        <div className="relative ml-auto w-full">
+        {/* <div className="relative ml-auto w-full">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search..."
             className="w-full rounded-lg bg-background pl-8"
           />
-        </div>
+        </div> */}
       </div>
 
       {/*second row */}
