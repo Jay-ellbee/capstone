@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Role after login:', role); // Log the role to ensure it's set correctly
     } catch (error) {
       console.error('Login failed:', error);
+      alert('Login failed. Please check your credentials.');
     }
   };
 

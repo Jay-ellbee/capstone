@@ -2,6 +2,7 @@
 const Order = require('../models/orderModel');
 const {generateCustomId} = require('../utils/idGenerator');
 const pool = require('../config/database');
+const Customer = require('../models/customerModel');
 
 // Retrieve all orders
 exports.getAllOrders = async (req, res) => {
@@ -205,15 +206,22 @@ exports.getOrdersByDate = async (req, res) => {
 exports.getOrders = async (req, res) => {
     try {
         // Get registered_customer_id from decoded token
-        const registered_customer_id = req.user?.id;
-
-        if (!registered_customer_id) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
+        const { user_id } = req.customer;
         // Fetch orders from the model
-        const orders = await Order.getOrdersByCustomerId(registered_customer_id);
+        const orders = await Order.getOrdersByCustomerId(user_id);
 
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Error fetching user orders:", error.message);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+};
+
+
+exports.getOrdersByCustomerId = async (req, res) => {
+    try {
+        const registered_customer_id = req.params.registered_customer_id;
+        const orders = await Order.getOrdersByCustomerId(registered_customer_id);
         res.status(200).json(orders);
     } catch (error) {
         console.error("Error fetching user orders:", error.message);

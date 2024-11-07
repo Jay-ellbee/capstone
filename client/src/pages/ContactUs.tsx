@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,24 +8,64 @@ import { ArrowRight, Search, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const ContactUs: React.FC = () => {
-    return (
-      <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
-        <HeaderFP />
-        <main className="container mx-auto p-3 lg:px-20">
+  const [formData, setFormData] = useState({
+    customer_name: '',
+    email: '',
+    phone: '',
+    req_msg: '',  
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('/api/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log('Message sent successfully');
+        alert('Message sent successfully');
+      } else {
+        console.error('Failed to send message');
+        alert('Failed to send message');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error sending message:', error.message);
+      }
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
+      <HeaderFP />
+      <main className="container mx-auto p-3 lg:px-20">
         <div className="relative bg-[url('/flower-bg.jpg')] bg-no-repeat bg-cover bg-center rounded-lg h-80 my-16">
-          {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/80 to-transparent rounded-lg"></div>
           <div className="absolute top-1/2 left-1/4 transform -translate-y-1/2 z-10">
-          <h1 className="text-8xl font-bold text-white text-center bg-clip-text  bg-opacity-10 bg-white/70 text-transparent">
-            Contact Us
-          </h1></div>
+            <h1 className="text-8xl font-bold text-white text-center bg-clip-text bg-opacity-10 bg-white/70 text-transparent">
+              Contact Us
+            </h1>
+          </div>
         </div>
-          <div className="flex flex-col md:flex-row justify-center items-start gap-12 p-8">
-            <div className="w-full md:w-1/2">
-              <h2 className="text-rose-500 text-2xl font-semibold mb-4">Contact Details</h2>
-              
-              
-              <div className="mb-6">
+        <div className="flex flex-col md:flex-row justify-center items-start gap-12 p-8">
+          <div className="w-full md:w-1/2">
+            <h2 className="text-rose-500 text-2xl font-semibold mb-4">Contact Details</h2>
+            {/* Contact details content */}
+            <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-rose-500">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,8 +80,7 @@ const ContactUs: React.FC = () => {
                   Manila
                 </p>
               </div>
-              
-             
+
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-rose-500">
@@ -57,8 +96,7 @@ const ContactUs: React.FC = () => {
                   09938664246
                 </p>
               </div>
-              
-             
+
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-rose-500">
@@ -71,44 +109,55 @@ const ContactUs: React.FC = () => {
                 <p className="text-gray-700 ml-7">irish_rina@yahoo.com</p>
               </div>
             </div>
-            
-          
-            <div className="w-full md:w-1/2">
-              <h2 className="text-rose-500 text-2xl font-semibold mb-4">Send Us a Message</h2>
-              <form className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Subject"
-                  className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
-                <textarea
-                  placeholder="Message"
-                  rows={4}
-                  className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
-                ></textarea>
-                <button
-                  type="submit"
-                  className="w-full p-3 bg-rose-500/70 text-white font-semibold rounded-md hover:bg-rose-600 transition"
-                >
-                  SEND MESSAGE
-                </button>
-              </form>
-            </div>
+
+          <div className="w-full md:w-1/2">
+            <h2 className="text-rose-500 text-2xl font-semibold mb-4">Send Us a Message</h2>
+            <form className="space-y-4" onSubmit={handleRequest}>
+              <Input
+                type="text"
+                name="customer_name"
+                placeholder="Name"
+                value={formData.customer_name}
+                onChange={handleChange}
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+              <Input
+                type="text"
+                name="phone"
+                placeholder="Phone Number"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+              <textarea
+                name="req_msg"
+                placeholder="Message"
+                rows={4}
+                value={formData.req_msg}
+                onChange={handleChange}
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
+              ></textarea>
+              <Button
+                type="submit"
+                className="w-full p-3 bg-rose-500/70 text-white font-semibold rounded-md hover:bg-rose-600 transition"
+              >
+                SEND MESSAGE
+              </Button>
+            </form>
           </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  };
-  
-  export default ContactUs;
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default ContactUs;

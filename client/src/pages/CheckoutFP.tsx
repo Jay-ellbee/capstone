@@ -11,6 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { CartItem } from '../context/CartContext';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+
+interface CustomJwtPayload extends JwtPayload {
+  user_id: string;
+  role: string; // Add other properties like 'role' if necessary
+}
 
 const Checkout: React.FC = () => {
   const [orderConfirmation, setOrderConfirmation] = useState<string[]>([]); // Initialize as an empty array
@@ -82,7 +88,15 @@ const Checkout: React.FC = () => {
 
   const handlePlaceOrder = async () => {
     const token = sessionStorage.getItem('token');
-    const userId = token ? JSON.parse(sessionStorage.getItem('user') || '{}').id : null;
+    let userId = null;
+
+if (token) {
+  // Use the custom interface here
+  const decoded = jwtDecode<CustomJwtPayload>(token);
+  userId = decoded.user_id; // TypeScript now recognizes 'user_id' as valid
+}
+
+    console.log(userId);
 
     const payload = {
       referenceId: billingDetails.referenceId,
@@ -343,9 +357,7 @@ console.log(orderConfirmation);
                                           <p className="text-md font-semibold">{item.name}</p>
                                           <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                                           <p className="text-sm text-muted-foreground">Amount: ₱{(item.price * item.quantity).toFixed(2)}</p>
-                                          <p className="text-sm text-muted-foreground font-semibold">
-                                          Total Amount: ₱{selectedItems.reduce((total: number, item: CartItem) => total + item.price * item.quantity, 0).toFixed(2)}
-                                      </p>
+                                          
                                       </div>
                                   </div>
                               ))}
@@ -354,6 +366,9 @@ console.log(orderConfirmation);
                               {orderConfirmation.length > 0 && (
                                   <div className="mt-6 p-4 bg-gray-200 rounded-md">
                                       <p className="text-lg font-semibold">Order Confirmation</p>
+                                      <p className="text-sm text-muted-foreground font-semibold">
+                                          Total Amount: ₱{selectedItems.reduce((total: number, item: CartItem) => total + item.price * item.quantity, 0).toFixed(2)}
+                                      </p> <br/>
                                       <p className="text-sm text-muted-foreground">
                                           Order Number(s): {orderConfirmation.join(', ')}
                                       </p><br/>
@@ -367,7 +382,7 @@ console.log(orderConfirmation);
                               )}
                           </div>
                           <DialogFooter className="mt-6">
-                            <Button variant="outline" onClick={() => setIsSecondDialogOpen(false)}>Okay</Button>
+                            <Link to="/"><Button variant="outline" onClick={() => setIsSecondDialogOpen(false)}>Okay</Button></Link>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>

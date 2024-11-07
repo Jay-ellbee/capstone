@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import HeaderFP from "@/components/HeaderFP";
 import Footer from "@/components/FooterFP";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -29,7 +29,10 @@ const ProductList: React.FC = () => {
   const [productsData, setProductsData] = useState<Bouquet[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [sortCriteria, setSortCriteria] = useState<'price' | 'num_sold'>('price');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<Bouquet[]>([]);
 
+  // Fetch initial product data
   useEffect(() => {
     async function getProducts() {
       const products = await fetchProducts();
@@ -40,6 +43,7 @@ const ProductList: React.FC = () => {
     getProducts();
   }, []);
 
+  // Fetch products data from the API
   async function fetchProducts() {
     try {
       const response = await fetch('/api/arrangements/', {
@@ -48,29 +52,54 @@ const ProductList: React.FC = () => {
           'Content-Type': 'application/json',
         },
       });
-  
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
       }
-  
-      const products = await response.json();
-      return products;
+      return await response.json();
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
   }
 
-  // Filter products based on the selected arrangement type
-  const filteredProducts = productsData.filter((product) => {
+  // Update search results based on the search term
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (searchTerm.trim() === '') {
+        setSearchResults([]); // Reset search results if search term is empty
+        return;
+      }
+      try {
+        const response = await fetch(`/api/search/customer?keyword=${encodeURIComponent(searchTerm)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const results = await response.json();
+        setSearchResults(results);
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    };
+
+    const delayDebounce = setTimeout(fetchSearchResults, 300);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  // Filter products based on the search term, selected type, and initial data
+  const filteredProducts = (searchTerm ? searchResults : productsData).filter((product) => {
     return selectedType ? product.arrangement_type === selectedType : true;
   });
 
   // Sort products based on the selected criteria
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortCriteria === 'price') {
-      return a.price - b.price; // Sort by price, lowest to highest
+      return a.price - b.price;
     } else {
-      return b.num_sold - a.num_sold; // Sort by num_sold, highest to lowest
+      return b.num_sold - a.num_sold;
     }
   });
 
@@ -84,9 +113,21 @@ const ProductList: React.FC = () => {
       <main className="container mx-auto my-5 p-3 lg:px-20">
         <div className="flex items-center space-x-4">
           <h1 className="text-3xl font-semibold mb-6">Our Products</h1>
+        </div>
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="flex-1">
+            <div className="relative ml-auto w-full">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg bg-background pl-8"
+              />
+            </div>
+          </div>
 
-          <div className="flex-1"></div>
-          
           {/* Sorting Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -113,8 +154,9 @@ const ProductList: React.FC = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Filter by Type Dropdown */}
           <div className="flex items-center space-x-2">
-            <h1 className="text-base ">Filter By Type:</h1>
+            <h1 className="text-base">Filter By Type:</h1>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-7 gap-1">

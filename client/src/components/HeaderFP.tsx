@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from '@/context/AuthContext';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 type CustomerName = {
   firstName: string;
@@ -68,57 +70,79 @@ const HeaderFP: React.FC = () => {
             >
               <div className="h-7 w-7" />
             </Link>
-            <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
-              <Link
-                to="/"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Home className="h-7 w-7" />
-              </Link>
-            </Button>
-            <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
-              <Link
-                to="/products"
-                className="text-foreground"
-              >
-                <BoxesIcon className="h-7 w-7" />
-              </Link>
-            </Button>
-            <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
-              <Link
-                to="/services"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Package className="h-7 w-7" />
-              </Link>
-            </Button>
-            <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
-              <Link
-                to="/about-us"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <CircleHelp className="h-7 w-7" />
-              </Link>
-            </Button>
-            {isCustomer ? (
-               <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
-               <Link
-                 to="/customization"
-                 className="text-muted-foreground hover:text-foreground"
-               >
-                 <Sparkles className="h-7 w-7" />
-               </Link>
-             </Button>
-            ) : (
-              <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full hidden">
-               <Link
-                 to="/customization"
-                 className="text-muted-foreground hover:text-foreground"
-               >
-                 <Sparkles className="h-7 w-7" />
-               </Link>
-             </Button>
-            )}
+            <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                  <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
+                    <Link
+                      to="/"
+                      className="text-foreground"
+                    >
+                      <Home className="h-7 w-7" />
+                    </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Home</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
+                      <Link
+                        to="/products"
+                        className="text-foreground"
+                      >
+                        <BoxesIcon className="h-7 w-7" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Products</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
+                  <Link
+                    to="/services"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Package className="h-7 w-7" />
+                  </Link>
+                </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Services</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
+                  <Link
+                    to="/about-us"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <CircleHelp className="h-7 w-7" />
+                  </Link>
+                </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">About Us</TooltipContent>
+                </Tooltip>
+                {isCustomer ? (
+                  <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full">
+                  <Link
+                    to="/customization"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Sparkles className="h-7 w-7" />
+                  </Link>
+                </Button>
+                ) : (
+                  <Button asChild size="default" variant="ghost" className="ml-auto gap-1 text-black hover:bg-rose-200 rounded-full hidden">
+                  <Link
+                    to="/customization"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Sparkles className="h-7 w-7" />
+                  </Link>
+                </Button>
+                )}
+            </TooltipProvider>
           </nav>
         </SheetContent>
       </Sheet>

@@ -72,10 +72,6 @@ export function LoginForm() {
               </button>
             </div>
             <div className="flex justify-between items-center text-sm mb-6">
-              <label className="flex items-center space-x-2">
-                <input type="checkbox" className="form-checkbox" />
-                <span>Keep me logged in</span>
-              </label>
               <a href="#" className="text-gray-500">Forgot Password?</a>
             </div>
             <button

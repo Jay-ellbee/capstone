@@ -92,18 +92,33 @@ const getOrdersByDate = async(date) => {
   }
 };
 
-const Order = {
-  getOrdersByCustomerId: async (registered_customer_id) => {
-      const [orders] = await db.query(
-          `SELECT o.order_id, o.arrangement_id, o.ord_date, o.status, o.completion_date, o.ord_qty
-           FROM orders o
-           WHERE o.registered_customer_id = ?`,
-          [registered_customer_id]
-      );
-      return orders;
-  },
+const getOrdersByCustomerId = async (registered_customer_id) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT 
+         o.order_id, 
+         a.arrangement_name, 
+         o.status, 
+         o.completion_date, 
+         o.ord_qty, 
+         a.price * o.ord_qty AS total 
+       FROM 
+         \`order\` AS o 
+       JOIN 
+         transaction_order_linking AS tol ON o.order_id = tol.order_id 
+       JOIN 
+         transaction AS t ON t.transaction_id = tol.transaction_id 
+       JOIN 
+         arrangement AS a ON o.arrangement_id = a.arrangement_id
+       WHERE 
+         t.registered_customer_id = ?`,
+      [registered_customer_id]
+    );
+    return orders;
+  } catch (error) {
+    throw new Error(`Error fetching orders: ${error.message}`);
+  }
 };
-
 module.exports = {
   getAllOrders,
   getOrderById,
@@ -112,5 +127,5 @@ module.exports = {
   updateOrderStatus,
   deleteOrder,
   getOrdersByDate,
-  Order
+  getOrdersByCustomerId
 };

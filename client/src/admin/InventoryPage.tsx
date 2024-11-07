@@ -188,37 +188,61 @@ const Inventory: React.FC = () => {
   const [selectedType, setSelectedType] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
 
-  // START OF FETCHING OF PRODUCTS
-  useEffect(() => {
-    async function getProducts() {
-      const products = await fetchProducts();
-      if (products) {
-        setProductsData(products);
-      }
-    }
-    getProducts();
-  }, []);
-
-  async function fetchProducts() {
-    try {
-      const response = await fetch('/api/inventory/products', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-  
-      const products = await response.json();
-      console.log(products);
-      return products;
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+// START OF FETCHING OF PRODUCTS
+useEffect(() => {
+  async function getProducts() {
+    const products = await fetchProducts();
+    if (products) {
+      // Sort products by shelf life in descending order
+      const sortedProductsByShelfLife = sortByShelfLifeDescending(products);
+      setProductsData(sortedProductsByShelfLife); // Set the initial sorted data in productsData
+      setSortedProducts(sortedProductsByShelfLife); // Initialize sortedProducts with sorted data
+      setIsShelfLifeAscending(false); // Set to false as default is descending
     }
   }
+  getProducts();
+}, []);
+
+async function fetchProducts() {
+  try {
+    const response = await fetch('/api/inventory/products', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+
+    const products = await response.json();
+    console.log(products);
+    return products;
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
+}
+
+// Utility function to sort by shelf life in ascending order
+const sortByShelfLifeAscending = (data: ProductsItem[]): ProductsItem[] => {
+  return [...data].sort((a, b) => Number(a.shelf_life) - Number(b.shelf_life));
+};
+
+// Sorting by shelf life in descending order
+const sortByShelfLifeDescending = (data: ProductsItem[]): ProductsItem[] => {
+  return [...data].sort((a, b) => Number(b.shelf_life) - Number(a.shelf_life));
+};
+
+// Handle sort toggle for shelf life
+const handleSortByShelfLife = () => {
+  const sorted = isShelfLifeAscending
+    ? sortByShelfLifeDescending(productsData)
+    : sortByShelfLifeAscending(productsData);
+  setSortedProducts(sorted);
+  setIsShelfLifeAscending(!isShelfLifeAscending);
+};
+
 // END OF FETCHING OF PRODUCTS
 
 // START OF DELETING OF PRODUCTS BY ID
@@ -628,22 +652,6 @@ const filteredProducts = selectedProductsType
 // Sorting by shelf_life in ascending order
 const [isShelfLifeAscending, setIsShelfLifeAscending] = useState(true);
 const [sortedProducts, setSortedProducts] = useState(filteredProducts);
-const sortByShelfLifeAscending = (data: ProductsItem[]): ProductsItem[] => {
-  return [...data].sort((a, b) => Number(a.shelf_life) - Number(b.shelf_life));
-};
-
-// Sorting by shelf_life in descending order
-const sortByShelfLifeDescending = (data: ProductsItem[]): ProductsItem[] => {
-  return [...data].sort((a, b) => Number(b.shelf_life) - Number(a.shelf_life));
-};
-
-const handleSortByShelfLife = () => {
-  const sorted = isShelfLifeAscending
-    ? sortByShelfLifeAscending(filteredProducts)
-    : sortByShelfLifeDescending(filteredProducts);
-  setSortedProducts(sorted);
-  setIsShelfLifeAscending(!isShelfLifeAscending);
-};
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">

@@ -9,18 +9,18 @@ app = Flask(__name__)
 CORS(app)
 
 # Load the dataset for recommendations
-df = pd.read_excel("C:\\Capstone\\server\\ml_flask_api\\datasetRS.xlsx")
+df = pd.read_excel("C:\\Capstone\\server\\ml_flask_api\\revised.xlsx")
 df_encoded_attributes = pd.get_dummies(df[['main_flower', 'wrapper_color', 'price', 'tags']])
 
 # Function to generate recommendations based on cosine similarity
-def recommend_similar_items(arrangementId, top_n=10):
-    similarity_matrix_attributes = cosine_similarity(df_encoded_attributes)
-    similarity_df_attributes = pd.DataFrame(similarity_matrix_attributes, index=df['arrangement_id'], columns=df['arrangement_id'])
-    
-    # Get similarity scores for the given arrangement based on attributes
-    similar_items = similarity_df_attributes[arrangementId].sort_values(ascending=False).drop(arrangementId)
+def recommend_similar_items(arrangement_id, top_n=10):
+    similarity_matrix = cosine_similarity(df_encoded_attributes)
+    similarity_df = pd.DataFrame(similarity_matrix, index=df['arrangement_id'], columns=df['arrangement_id'])
+
+    # Get similarity scores for the given arrangement
+    similar_items = similarity_df[arrangement_id].sort_values(ascending=False).drop(arrangement_id)
     top_similar_items = similar_items.head(top_n)
-    
+
     recommendations = df[df['arrangement_id'].isin(top_similar_items.index)]
     return recommendations.to_dict(orient='records')
 
