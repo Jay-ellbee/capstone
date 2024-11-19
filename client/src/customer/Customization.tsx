@@ -29,6 +29,7 @@ import {
 
 const Customization: React.FC = () => {
   const [textPrompt, setTextPrompt] = useState("");
+  const [notes, setNotes] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +113,7 @@ const Customization: React.FC = () => {
                   <div className="col-span-1">
                     <textarea
                       placeholder="Type a detailed description of your desired arrangement."
-                      name="notes"
+                      name="prompt"
                       value={textPrompt}
                       onChange={(e) => setTextPrompt(e.target.value)}
                       className="w-full p-3 border rounded-sm"
@@ -190,7 +191,7 @@ const Customization: React.FC = () => {
                 <textarea
                   placeholder="Type a detailed description of your desired arrangement."
                   name="notes"
-                  value={textPrompt}
+                  value={notes}
                   onChange={(e) => setTextPrompt(e.target.value)}
                   className="w-full p-3 border rounded-sm"
                   rows={10}
