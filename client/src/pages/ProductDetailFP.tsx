@@ -196,6 +196,7 @@ const ProductDetail: React.FC = () => {
             recommendations.map((item) => (
               <Card key={item.arrangement_id}>
                 <CardHeader>
+                <img src={item.img_link} alt={item.arrangement_name} className="w-full h-60 rounded object-cover" />
                   <CardTitle className="text-center">{item.arrangement_name}</CardTitle>
                 </CardHeader>
                 <CardContent>

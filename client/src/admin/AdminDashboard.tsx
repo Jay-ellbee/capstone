@@ -89,7 +89,7 @@ type ForecastItem = {
   "Season Start": string;
   "Variant": string;
 };
-type DataItem = { order_id: string; arrangement_name: string; ord_qty: number; ord_date: string; status: string; completion_date: string; };
+type DataItem = { order_id: string; arrangement_name: string; ord_qty: number; ord_date: string; status: string; delivery_date: string; };
 type Revenue = { Revenue: number; };
 type Customers = { customers: number; };
 
@@ -324,8 +324,6 @@ const Dashboard: React.FC = () => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     }).format(date);
   };
 
@@ -337,7 +335,7 @@ const Dashboard: React.FC = () => {
       typeof item.ord_qty === 'number' &&
       typeof item.ord_date === 'string' &&
       typeof item.status === 'string' &&
-      typeof item.completion_date === 'string'
+      typeof item.delivery_date === 'string'
     );
   }
 
@@ -1010,7 +1008,7 @@ const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
                               </PopoverContent>
                             </Popover>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{formatDate(item.completion_date)}</TableCell>
+                          <TableCell className="hidden md:table-cell">{formatDate(item.delivery_date)}</TableCell>
                         </TableRow>
                       ))}
                       </TableBody>

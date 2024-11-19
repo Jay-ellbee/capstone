@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Search, CircleUser, Package2, Home, ShoppingCart, Package, Users2, CreditCard, LineChart, Bell,  } from 'lucide-react';
+import { Menu, Search, CircleUser, Package2, Home, ShoppingCart, Package, Users2, CreditCard, LineChart, Bell, Warehouse,  } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -59,6 +59,14 @@ const Header: React.FC = () => {
                   Inventory
                 </Link>
                 <Link
+                  to="#"
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <Warehouse className="h-5 w-5" />
+                  Batch Management
+                </Link>
+
+                <Link
                   to="/admin/customers"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
@@ -66,18 +74,18 @@ const Header: React.FC = () => {
                   Customers
                 </Link>
                 <Link
-                  to="/admin/transactions"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <CreditCard className="h-5 w-5" />
-                  Transactions
-                </Link>
-                <Link
                   to="#"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
                   <LineChart className="h-5 w-5" />
                   Sales
+                </Link>
+                <Link
+                  to="/admin/transactions"
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <CreditCard className="h-5 w-5" />
+                  Transactions
                 </Link>
               </nav>
             </SheetContent>

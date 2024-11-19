@@ -21,7 +21,7 @@ type OrderData = {
   order_id: string;
   arrangement_name: string;
   status: string;
-  completion_date: string;
+  delivery_date: string;
   ord_qty: number;
   total: number;
 };
@@ -268,7 +268,7 @@ const Profile: React.FC = () => {
                               <td className="py-2 px-4">{order.order_id}</td>
                               <td className="py-2 px-4">{order.arrangement_name}</td>
                               <td className="py-2 px-4">{order.status}</td>
-                              <td className="py-2 px-4">{formatDate(order.completion_date)}</td>
+                              <td className="py-2 px-4">{formatDate(order.delivery_date)}</td>
                               <td className="py-2 px-4">{order.ord_qty}</td>
                               <td className="py-2 px-4">₱{order.total.toFixed(2)}</td>
                             </tr>

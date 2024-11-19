@@ -2,17 +2,9 @@ const pool = require('../config/database');
 const { generateCustomId } = require('../utils/idGenerator');
 
 const getRequests = async () => {
-    console.log("Checking database connection...");
-    if (pool) {
-      console.log("Database connection is active.");
-    } else {
-      console.log("Database connection is NOT active.");
-      return [];
-    }
   
     try {
       const [rows] = await pool.query('SELECT * FROM request');
-      console.log("Rows returned:", rows);  // Log data returned by the query
       return rows;
     } catch(err) {
       console.error("Error fetching requests:", err);  // Log any errors

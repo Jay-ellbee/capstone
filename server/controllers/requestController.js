@@ -3,12 +3,8 @@ const mysql = require('mysql2/promise');
 
 
 exports.getRequests = async (req, res) => {
-    console.log('im here');
-
-    console.log('Fetching requests...');
     try {
       const requests = await Request.getRequests();
-      console.log('Data retrieved from model:', requests);
       res.status(200).json({ requests: requests });
     } catch (err) {
       console.error('Error fetching requests:', err);

@@ -96,9 +96,6 @@ import { ToastCopyIdButton } from '@/components/ToastCopyId';
     variant_name: string;
     var_color: string;
     prod_type: string;
-    stock_qty: string; 
-    price_per_qty: number;
-    shelf_life: number;
   }
 
   type MaterialItem = {
@@ -193,11 +190,7 @@ useEffect(() => {
   async function getProducts() {
     const products = await fetchProducts();
     if (products) {
-      // Sort products by shelf life in descending order
-      const sortedProductsByShelfLife = sortByShelfLifeDescending(products);
-      setProductsData(sortedProductsByShelfLife); // Set the initial sorted data in productsData
-      setSortedProducts(sortedProductsByShelfLife); // Initialize sortedProducts with sorted data
-      setIsShelfLifeAscending(false); // Set to false as default is descending
+      setProductsData(products);
     }
   }
   getProducts();
@@ -224,24 +217,6 @@ async function fetchProducts() {
   }
 }
 
-// Utility function to sort by shelf life in ascending order
-const sortByShelfLifeAscending = (data: ProductsItem[]): ProductsItem[] => {
-  return [...data].sort((a, b) => Number(a.shelf_life) - Number(b.shelf_life));
-};
-
-// Sorting by shelf life in descending order
-const sortByShelfLifeDescending = (data: ProductsItem[]): ProductsItem[] => {
-  return [...data].sort((a, b) => Number(b.shelf_life) - Number(a.shelf_life));
-};
-
-// Handle sort toggle for shelf life
-const handleSortByShelfLife = () => {
-  const sorted = isShelfLifeAscending
-    ? sortByShelfLifeDescending(productsData)
-    : sortByShelfLifeAscending(productsData);
-  setSortedProducts(sorted);
-  setIsShelfLifeAscending(!isShelfLifeAscending);
-};
 
 // END OF FETCHING OF PRODUCTS
 
@@ -691,9 +666,9 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                   <CardTitle>Inventory</CardTitle>
                   <div className="ml-auto flex items-center gap-2">
                     {/* Sort Shelf Life Button */}
-                      <Button size="sm" variant="outline" onClick={handleSortByShelfLife} className="h-7 gap-1">
+                      {/* <Button size="sm" variant="outline" onClick={handleSortByShelfLife} className="h-7 gap-1">
                         Sort Shelf Life {isShelfLifeAscending ? "↑" : "↓"}
-                      </Button>
+                      </Button> */}
        
                   <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -783,56 +758,7 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                         </DialogContent>
                       </Dialog>
 
-                       {/*Product by batch removal Modal */}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" className="h-7 gap-1">
-                          <Trash className="h-3.5 w-3.5" />
-                          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Delete Product By Batch
-                          </span>
-                        </Button>
-                      </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Remove Product By Batch</DialogTitle>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="username" className="text-right">
-                                Batch ID:
-                              </Label>
-                              <Input id="product_id" 
-                              placeholder="Search by batch ID" 
-                              value={productBatchId}
-                              onChange={(e) => setProductBatchId(e.target.value)}
-                              className="col-span-3" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button type="button" variant="destructive">Delete</Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure you want to remove this product?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete your product from our servers.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogAction onClick={handleDeleteByBatchConfirmation}>Yes</AlertDialogAction>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                            <DialogClose asChild>
-                              <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+
 
                       {/*Add Product Modal */}
                       <Dialog>
@@ -973,11 +899,7 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="hidden w-[100px] sm:table-cell cursor-pointer" onClick={handleSortByShelfLife}>
-                          Shelf Life {isShelfLifeAscending ? "↑" : "↓"}
-                          <span className="sr-only">Image</span>
-                        </TableHead>
-                        <TableHead>Batch ID</TableHead>
+                       
                         <TableHead>Product ID</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead className="hidden md:table-cell">
@@ -987,9 +909,6 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                           Color
                         </TableHead>
                         <TableHead>Product Type</TableHead>
-                        <TableHead>Stock</TableHead>
-                        <TableHead>Price per Qty</TableHead>
-                        <TableHead>Shelf Life (days-hours)</TableHead>
                         <TableHead className="hidden w-[100px] sm:table-cell">
                           <span className="sr-only">Image</span>
                         </TableHead>
@@ -999,12 +918,8 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                     {(sortedProducts.length > 0 ? sortedProducts : filteredProducts).length > 0 ? (
                       (sortedProducts.length > 0 ? sortedProducts : filteredProducts).map((item) => (
                       <TableRow key={item.batch_id}>
-                        <TableCell className="hidden sm:table-cell">
-                          <Checkbox id="item1" />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {item.batch_id}
-                        </TableCell>
+
+                      
                         <TableCell>
                           {item.product_id}
                         </TableCell>
@@ -1018,15 +933,7 @@ const [sortedProducts, setSortedProducts] = useState(filteredProducts);
                         <TableCell>
                           {item.prod_type}
                         </TableCell>
-                        <TableCell>
-                          {item.stock_qty}
-                        </TableCell>
-                        <TableCell>
-                          {item.price_per_qty}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {item.shelf_life}
-                        </TableCell>
+                       
                         <TableCell>
                         <div className="ml-auto flex items-center gap-2">
                           {/* <Button size="sm" variant="outline" className="h-7 gap-1">

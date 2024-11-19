@@ -26,6 +26,7 @@ import AboutUs from './pages/AboutUsFP';
 import { ToastProvider } from './components/ui/toast';
 import Services from './pages/Services';
 import ContactUs from './pages/ContactUs';
+import StockManagement from './admin/StockManagement';
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -133,6 +134,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute allowedTypes={['super_admin']}>
                 <TransactionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stock-management"
+            element={
+              <ProtectedRoute allowedTypes={['super_admin']}>
+                <StockManagement />
               </ProtectedRoute>
             }
           />

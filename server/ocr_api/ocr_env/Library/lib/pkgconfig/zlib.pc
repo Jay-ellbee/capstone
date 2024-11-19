@@ -1,0 +1,13 @@
+prefix=C:/Capstone/server/ocr_api/ocr_env/Library
+exec_prefix=C:/Capstone/server/ocr_api/ocr_env/Library
+libdir=C:/Capstone/server/ocr_api/ocr_env/Library/lib
+sharedlibdir=C:/Capstone/server/ocr_api/ocr_env/Library/lib
+includedir=C:/Capstone/server/ocr_api/ocr_env/Library/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

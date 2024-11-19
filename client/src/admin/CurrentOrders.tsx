@@ -91,7 +91,7 @@ const frameworks = [
     ord_qty: number;
     ord_date: string;
     status: string;
-    completion_date: string;
+    delivery_date: string;
   }
 
 const CurrentOrdersPage: React.FC = () => {
@@ -173,7 +173,7 @@ const CurrentOrdersPage: React.FC = () => {
         typeof item.ord_qty === 'number' &&
         typeof item.ord_date === 'string' &&
         typeof item.status === 'string' &&
-        typeof item.completion_date === 'string'
+        typeof item.delivery_date === 'string'
       );
     }
   
@@ -211,8 +211,6 @@ const sortByOldest = () => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     }).format(date);
   };
 
@@ -399,7 +397,7 @@ const sortByOldest = () => {
                               </PopoverContent>
                             </Popover>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{formatDate(item.completion_date)}</TableCell>
+                          <TableCell className="hidden md:table-cell">{formatDate(item.delivery_date)}</TableCell>
                         </TableRow>
                       ))}
                       </TableBody>

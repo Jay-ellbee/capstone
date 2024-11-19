@@ -12,6 +12,17 @@ import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger, Dialog
 import { Calendar } from "@/components/ui/calendar";
 import { CartItem } from '../context/CartContext';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+import axios from 'axios';
+
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/file-uploader";
+import Image from "next/image";
+import { DropzoneOptions } from "react-dropzone";
+
 
 interface CustomJwtPayload extends JwtPayload {
   user_id: string;
@@ -111,7 +122,7 @@ if (token) {
       orderDetails: selectedItems.map((item: CartItem) => ({
         arrangement_id: item.id,
         quantity: item.quantity,
-        completion_date: selectedDate ? selectedDate.toLocaleDateString('en-CA') : null,
+        delivery_date: selectedDate ? selectedDate.toLocaleDateString('en-CA') : null,
       })),
     };
 
@@ -145,6 +156,73 @@ if (token) {
   };
 
 console.log(orderConfirmation);
+
+const [files, setFiles] = useState<File[] | null>([]);
+const dropzone = {
+  accept: {
+    "image/*": [".jpg", ".jpeg", ".png"],
+  },
+  multiple: true,
+  maxFiles: 4,
+  maxSize: 1 * 1024 * 1024,
+} satisfies DropzoneOptions;
+
+const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+const [previewImage, setPreviewImage] = useState<string | null>(null);
+const [isProcessing, setIsProcessing] = useState(false);
+
+
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    processFile(file);
+  }
+};
+
+const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files?.[0];
+  if (file) {
+    processFile(file);
+  }
+};
+
+const processFile = async (file: File) => {
+  setUploadedFile(file);
+  setPreviewImage(URL.createObjectURL(file));
+
+  try {
+    setIsProcessing(true);
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await axios.post("http://127.0.0.1:5000/ocr", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log("OCR Response:", response.data);
+
+    if (response.data?.transaction_id) {
+      // Extract the transaction_id and trim whitespace
+      setBillingDetails((prev) => ({
+        ...prev,
+        referenceId: response.data.transaction_id.trim(),
+      }));
+    } else {
+      alert("Unable to extract transaction ID from the uploaded image. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error processing image for OCR:", error);
+    alert("Failed to process the image. Please try again.");
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:py-0">
       <HeaderFP />
@@ -233,7 +311,7 @@ console.log(orderConfirmation);
                         <TableRow key={item.id} className="border-t">
                           <TableCell>{item.name}</TableCell>
                           <TableCell className="text-center">{item.quantity}</TableCell>
-                          <TableCell className="text-right">₱{(item.price * item.quantity).toFixed(2)}</TableCell>
+                          <TableCell className="text-right"> {(item.price * item.quantity).toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                       <TableRow className="border-t">
@@ -319,9 +397,49 @@ console.log(orderConfirmation);
                       {/* First Dialog to enter Reference ID */}
                       <Dialog open={isFirstDialogOpen} onOpenChange={setIsFirstDialogOpen}>
                         <DialogContent className="max-w-md mx-auto text-center">
-                          <DialogTitle className="text-xl font-bold">Enter Reference ID</DialogTitle>
+                          <DialogTitle className="text-xl font-bold">Upload Reference Image</DialogTitle>
                           <DialogDescription className="mt-2 mb-4 text-sm text-muted-foreground">
-                            Please enter your Reference ID to proceed with your order.
+                            Upload an image of your Reference ID. The text will be extracted automatically.
+                          </DialogDescription>
+
+                          {/* File Upload Section */}
+                          <div
+                            className="border-dashed border-2 rounded-md p-6 flex flex-col items-center justify-center"
+                            onDrop={handleDrop}
+                            onDragOver={(e) => e.preventDefault()}
+                          >
+                            <input
+                              type="file"
+                              id="file-upload"
+                              className="hidden"
+                              onChange={handleFileChange}
+                            />
+                            <label
+                              htmlFor="file-upload"
+                              className="cursor-pointer text-center text-muted-foreground"
+                            >
+                              Drag & Drop your file here or click to upload
+                            </label>
+                            {previewImage && (
+                              <div className="mt-4">
+                                <img
+                                  src={previewImage}
+                                  alt="Preview"
+                                  className="rounded-md max-h-48"
+                                />
+                              </div>
+                            )}
+                            {uploadedFile && (
+                              <p className="mt-2 text-sm text-foreground">
+                                Uploaded: {uploadedFile.name}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Prefilled Reference ID Input */}
+                          <DialogTitle className="text-xl font-bold mt-6">Enter Reference ID</DialogTitle>
+                          <DialogDescription className="mt-2 mb-4 text-sm text-muted-foreground">
+                            Confirm or edit the extracted Reference ID.
                           </DialogDescription>
                           <input
                             name="referenceId"
@@ -330,8 +448,16 @@ console.log(orderConfirmation);
                             placeholder="Reference ID"
                             className="w-full p-2 border rounded-md"
                           />
+
                           <DialogFooter className="mt-6">
-                            <Button variant="outline" onClick={() => { handleFirstDialogSubmit(); handlePlaceOrder();}} disabled={!billingDetails.referenceId}>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                handleFirstDialogSubmit();
+                                handlePlaceOrder();
+                              }}
+                              disabled={!billingDetails.referenceId && !uploadedFile}
+                            >
                               Submit
                             </Button>
                           </DialogFooter>
