@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Package2, Home, ShoppingCart, Package, Users2, LineChart, CreditCard } from 'lucide-react';
+import { Package2, Home, ShoppingCart, Package, Users2, LineChart, CreditCard, Warehouse } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
@@ -47,10 +47,22 @@ const Sidebar: React.FC = () => {
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
           >
             <Package className="h-5 w-5" />
-            <span className="sr-only">Products</span>
+            <span className="sr-only">Inventory</span>
           </Link>
         </TooltipTrigger>
-        <TooltipContent side="right">Products</TooltipContent>
+        <TooltipContent side="right">Inventory</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            to="/admin/stock-management"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+          >
+            <Warehouse className="h-5 w-5" />
+            <span className="sr-only">Batch Management</span>
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="right">Batch Management</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>

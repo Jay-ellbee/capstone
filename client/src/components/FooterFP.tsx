@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Left Section */}
         <div>
-          <h2 className="text-white text-2xl font-bold mb-4">Name</h2>
+          <h2 className="text-white text-2xl font-bold mb-4">La Primera Nene Flower Shop</h2>
           <div className="flex space-x-4 mb-4">
             <Link to="#" className="hover:text-white">
               <Twitter />
@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
             </Link>
           </div>
           <p className="text-sm">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+          Dangwa Stall 34 Dos Castillas Street Sampaloc Manila
           </p>
         </div>
 
@@ -33,18 +33,18 @@ const Footer: React.FC = () => {
           <h3 className="text-white font-bold mb-4">MENU</h3>
           <ul className="space-y-2">
             <li>
-              <Link to="#" className="hover:text-white">
+              <Link to="/" className="hover:text-white">
                 Home
               </Link>
             </li>
             <li>
-              <Link to="#" className="hover:text-white">
-                Store
+              <Link to="/products" className="hover:text-white">
+                Products
               </Link>
             </li>
             <li>
-              <Link to="#" className="hover:text-white">
-                About
+              <Link to="/customization" className="hover:text-white">
+                Customization
               </Link>
             </li>
           </ul>
@@ -55,18 +55,18 @@ const Footer: React.FC = () => {
           <h3 className="text-white font-bold mb-4">PAGES</h3>
           <ul className="space-y-2">
             <li>
-              <Link to="#" className="hover:text-white">
-                lorem
+              <Link to="/about-us" className="hover:text-white">
+                About Us
               </Link>
             </li>
             <li>
-              <Link to="#" className="hover:text-white">
-                ipsum
+              <Link to="/contact-us" className="hover:text-white">
+                Contact Us
               </Link>
             </li>
             <li>
-              <Link to="#" className="hover:text-white">
-                hotdog
+              <Link to="/services" className="hover:text-white">
+                Services
               </Link>
             </li>
           </ul>
@@ -78,11 +78,11 @@ const Footer: React.FC = () => {
           <ul className="space-y-2">
             <li className="flex items-center space-x-2">
               <Mail />
-              <span>Email contact@meagency.io</span>
+              <span>Email irish_rina@yahoo.com</span>
             </li>
             <li className="flex items-center space-x-2">
               <Phone />
-              <span>Phone (+44) 7522 - 507979</span>
+              <span>Phone (+63) 995 450 1418</span>
             </li>
           </ul>
         </div>
@@ -91,7 +91,7 @@ const Footer: React.FC = () => {
       {/* Bottom Row */}
       <div className="max-w-7xl mx-auto mt-8 border-t border-gray-700 pt-6 flex justify-between items-center">
         <span className="text-sm">
-          &copy; {new Date().getFullYear()} meagency
+          &copy; {new Date().getFullYear()} laprimeraneneflowershop
         </span>
         <div className="flex space-x-4">
           <img src="/images/paypal.png" alt="PayPal" className="h-8"/>

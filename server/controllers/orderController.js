@@ -33,8 +33,8 @@ exports.getOrderById = async (req, res) => {
 // Update an existing order
 exports.updateOrder = async (req, res) => {
     const { orderId } = req.params;
-    const { status, completion_date, ord_qty } = req.body;
-    const updatedData = { status, completion_date, ord_qty };
+    const { status, delivery_date, ord_qty } = req.body;
+    const updatedData = { status, delivery_date, ord_qty };
     try {
         const result = await Order.updateOrder(orderId, updatedData);
         if (result.affectedRows === 0) {
@@ -97,88 +97,124 @@ exports.getOrdersByDate = async (req, res) => {
 
   // Create a new order
   exports.placeOrder = async (req, res) => {
-    const { registered_customer_id, rec_name, address, customer_name, notes,delivery_method, phone, email, referenceId, orderDetails } = req.body;
+    const {
+        registered_customer_id,
+        rec_name,
+        address,
+        customer_name,
+        notes,
+        delivery_method,
+        phone,
+        email,
+        referenceId,
+        orderDetails,
+    } = req.body;
 
     const connection = await pool.getConnection();
-    console.log(orderDetails.completion_date);
 
     try {
         await connection.beginTransaction();
         console.log("Starting transaction for placing order...");
 
         // Insert into transaction table
-        const transaction_id = await generateCustomId('transaction', 'TR');
+        const transaction_id = await generateCustomId("transaction", "TR");
         await connection.query(
             `INSERT INTO transaction (transaction_id, reference_id, registered_customer_id, date, rec_name, address, delivery_method, phone, email, customer_name, notes)
              VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)`,
             [transaction_id, referenceId, registered_customer_id, rec_name, address, delivery_method, phone, email, customer_name, notes]
         );
 
-        let orderCounter = 0; // Counter for unique order IDs in the same transaction
+        let orderCounter = 0;
+        let saleCounter = 0; // Counter for unique sales IDs within this transaction
         const orderIds = [];
-        // Process each order in orderDetails
-        for (const order of orderDetails) {
-            const { arrangement_id, quantity, completion_date } = order;
-            const order_id = await generateCustomId('order', 'OR', orderCounter++); // Increment for each order
 
-            // Insert order
+        for (const order of orderDetails) {
+            const { arrangement_id, quantity, delivery_date } = order;
+            const order_id = await generateCustomId("order", "OR", orderCounter++);
             await connection.query(
-                `INSERT INTO \`order\` (order_id, arrangement_id, ord_date, status, completion_date, ord_qty)
+                `INSERT INTO \`order\` (order_id, arrangement_id, ord_date, status, delivery_date, ord_qty)
                  VALUES (?, ?, NOW(), 'pending', ?, ?)`,
-                [order_id, arrangement_id,completion_date, quantity]
+                [order_id, arrangement_id, delivery_date, quantity]
             );
 
-            // Link the order to the transaction
-            const transaction_order_id = await generateCustomId('transaction_order_linking', 'TL', orderCounter);
+            const transaction_order_id = await generateCustomId("transaction_order_linking", "TL", orderCounter);
             await connection.query(
                 `INSERT INTO transaction_order_linking (transaction_order_linking_id, transaction_id, order_id)
                  VALUES (?, ?, ?)`,
                 [transaction_order_id, transaction_id, order_id]
             );
 
-            // Retrieve products and materials for arrangement and update stocks
-            const [product] = await connection.query(
+            const [products] = await connection.query(
                 `SELECT product_id, qty_used FROM prods_arr_linking WHERE arrangement_id = ?`,
                 [arrangement_id]
             );
-            const [material] = await connection.query(
+            const [materials] = await connection.query(
                 `SELECT material_id, qty_used FROM mats_arr_linking WHERE arrangement_id = ?`,
                 [arrangement_id]
             );
 
-            // Update product stock
-            for (const { product_id, qty_used } of product) {
-                console.log("Processing product:", product_id, "Quantity used:", qty_used);
-                const required_qty = qty_used * quantity;
-                const [batch] = await connection.query(
-                    `SELECT batch_id, stock_qty FROM batch
-                     WHERE batch_id = (SELECT batch_id FROM product WHERE product_id = ?)
-                     AND stock_qty >= ? LIMIT 1`,
-                    [product_id, required_qty]
-                );
 
-                if (batch && batch.length > 0 && batch[0].stock_qty >= required_qty) {
-                    const newStockQty = batch[0].stock_qty - required_qty;
-                    await connection.query(
-                        `UPDATE batch SET stock_qty = ? WHERE batch_id = ?`,
-                        [newStockQty, batch[0].batch_id]
+            for (const { product_id, qty_used } of products) {
+                const required_qty = qty_used * quantity;
+                let remainingQty = required_qty;
+            
+                while (remainingQty > 0) {
+                    const [batches] = await connection.query(
+                        `SELECT batch_id, stock_qty, price_per_pc
+                        FROM batch_product
+                        WHERE product_id = ? AND is_expired = FALSE
+                        AND stock_qty > 0
+                        ORDER BY expiration_date ASC
+                        LIMIT 1`,
+                        [product_id]
                     );
-                    console.log(`Updated product stock for ${product_id}, batch ${batch[0].batch_id}: ${newStockQty}`);
-                } else {
-                    throw new Error(`Insufficient stock for product ${product_id}`);
+            
+                    if (batches.length === 0) {
+                        throw new Error(`Insufficient stock for product ${product_id}`);
+                    }
+            
+                    const batch = batches[0];
+                    const deductedQty = Math.min(batch.stock_qty, remainingQty);
+            
+                    // Deduct only from stock_qty
+                    const newStockQty = batch.stock_qty - deductedQty;
+            
+                    await connection.query(
+                        `UPDATE batch_product 
+                         SET stock_qty = ?
+                         WHERE batch_id = ? AND product_id = ?`,
+                        [newStockQty, batch.batch_id, product_id]
+                    );
+            
+                    // Log the sale
+                    const sale_id = await generateCustomId("sales", "SL", saleCounter++);
+                    await connection.query(
+                        `INSERT INTO sales (sales_id, batch_id, product_id, qty_sold, sale_price)
+                         VALUES (?, ?, ?, ?, ?)`,
+                        [
+                            sale_id,
+                            batch.batch_id,
+                            product_id,
+                            deductedQty,
+                            batch.price_per_pc * deductedQty,
+                        ]
+                    );
+            
+                    console.log(`Logged sale: ${sale_id}, product ${product_id}, batch ${batch.batch_id}`);
+                    remainingQty -= deductedQty;
                 }
             }
-
+            
             // Update material stock
-            for (const { material_id, qty_used } of material) {
+            for (const { material_id, qty_used } of materials) {
                 const required_qty = qty_used * quantity;
-                const [material] = await connection.query(
+                const [materialStock] = await connection.query(
                     `SELECT stock_qty FROM material WHERE material_id = ? AND stock_qty >= ? LIMIT 1`,
                     [material_id, required_qty]
                 );
 
-                if (material && material.length > 0 && material[0].stock_qty >= required_qty) {
-                    const newStockQty = material[0].stock_qty - required_qty;
+                if (materialStock.length > 0 && materialStock[0].stock_qty >= required_qty) {
+                    const newStockQty = materialStock[0].stock_qty - required_qty;
                     await connection.query(
                         `UPDATE material SET stock_qty = ? WHERE material_id = ?`,
                         [newStockQty, material_id]
@@ -188,20 +224,22 @@ exports.getOrdersByDate = async (req, res) => {
                     throw new Error(`Insufficient stock for material ${material_id}`);
                 }
             }
-            orderIds.push(order_id); 
+
+            orderIds.push(order_id);
         }
 
         await connection.commit();
-        res.status(200).json({ message: 'Order placed and stock updated successfully', orderIds });
-        
+        res.status(200).json({ message: "Order placed and stock updated successfully", orderIds });
     } catch (error) {
         await connection.rollback();
         console.error("Error processing order:", error.message);
-        res.status(500).json({ error: 'Failed to place order and update stock', details: error.message });
+        res.status(500).json({ error: "Failed to place order and update stock", details: error.message });
     } finally {
         connection.release();
     }
 };
+
+
 
 exports.getOrders = async (req, res) => {
     try {

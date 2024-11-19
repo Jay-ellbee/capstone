@@ -2,7 +2,7 @@
 const pool = require('../config/database');
 const { generateCustomId } = require('../utils/idGenerator');
 
-// Get all inventory items
+//Get all inventory items
 const getAllInventory = async () => {
     try {
       const [results] = await pool.query('SELECT * FROM batch');
@@ -16,18 +16,7 @@ const getAllInventory = async () => {
 const getAllProducts = async () => {
   try {
     const [results] = await pool.query(`
-      SELECT 
-        batch.batch_id, 
-        product_id, 
-        prod_name, 
-        variant_name, 
-        var_color, 
-        prod_type, 
-        stock_qty, 
-        price_per_qty, 
-        DATEDIFF(shelf_life, NOW()) AS shelf_life
-      FROM batch
-      INNER JOIN product ON batch.batch_id = product.batch_id
+      SELECT product_id, prod_name, variant_name, var_color, prod_type FROM product
     `);
     return results;
   } catch (err) {

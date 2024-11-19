@@ -133,7 +133,7 @@ const Landing: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                 <CardTitle className="text-left text-md md:text-lg pt-2 mb-0">{product.arrangement_name}</CardTitle>
-                  <p className="text-xs text-gray-500">{product.description}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
                 </CardContent>
                 <CardFooter>
                 <p className="text-left text-md font-semibold">₱{product.price.toFixed(2)}</p>
@@ -168,7 +168,7 @@ const Landing: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                 <CardTitle className="text-left text-md md:text-lg pt-2 mb-0">{product.arrangement_name}</CardTitle>
-                  <p className="text-xs text-gray-500">{product.description}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
                 </CardContent>
                 <CardFooter>
                 <p className="text-left text-md font-semibold">₱{product.price.toFixed(2)}</p>
@@ -195,99 +195,6 @@ const Landing: React.FC = () => {
           </div>
 
       </div>
-
-      {/* Eighth row
-      <div className="flex space-between" id="services">
-        <h1 className="text-3xl font-semibold text-rose-400">Services</h1>
-      </div> */}
-      {/* Ninth row
-      <div className="grid gap-2 sm:gap-4 md:gap-8 sm:grid-cols-2 h-100 my-16">
-        
-          
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\flower-bg.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Bouquets</h2>
-            </div>
-          </div>
-          </Link>
-        
-       
-         
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\Funeral.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Funeral</h2>
-            </div>
-          </div>
-          </Link>
-       
-          
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\entourage.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Entourage</h2>
-            </div>
-          </div>
-          </Link>
-      
-         
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\bridal-bouquet.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Bridal Bouquet</h2>
-            </div>
-          </div>
-          </Link>
-      
-         
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\funeral-basket.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Funeral Basket</h2>
-            </div>
-          </div>
-          </Link>
-       
-          
-          <Link to="/products">
-          <div className="relative bg-rose-600 rounded-lg overflow-hidden group transition-all duration-500 ease-in-out h-64 bg-center">
-            <img 
-              src="\funeral-urn.jpg" 
-              alt="Benefits"
-              className="object-cover w-full opacity-70 group-hover:opacity-50 transition-opacity duration-500 ease-in-out"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-              <h2 className="text-white text-3xl font-bold">Funeral Urn</h2>
-            </div>
-          </div>
-          </Link>
-      </div> */}
 
       <button
           onClick={handleChatClick}

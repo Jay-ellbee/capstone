@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import {
-  ArrowDown,
-  CalendarIcon,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  CreditCard,
-  ListFilter,
-  MoreVertical,
-  Truck,
 } from "lucide-react"
 
 import {
@@ -30,22 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+
 import {
   Table,
   TableBody,
@@ -100,7 +76,7 @@ import { format } from 'date-fns';
     ord_qty: number;
     ord_date: string;
     status: string;
-    completion_date: string;
+    delivery_date: string;
   }
 
 const OrdersPage: React.FC = () =>  {
@@ -175,8 +151,6 @@ const OrdersPage: React.FC = () =>  {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     }).format(date);
   };
 
@@ -190,7 +164,7 @@ const OrdersPage: React.FC = () =>  {
       typeof item.ord_qty === 'number' &&
       typeof item.ord_date === 'string' &&
       typeof item.status === 'string' &&
-      typeof item.completion_date === 'string'
+      typeof item.delivery_date === 'string'
     );
   }
 
@@ -252,11 +226,11 @@ const OrdersPage: React.FC = () =>  {
       {/*This one covers the right part so that the nav wont overlap */}
       <div className="flex flex-col sm:gap-4 sm:py-0 sm:pl-14">
       <Header /> {/* Render the Header */}
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 ">
+        <main className="grid grid-cols-5 flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 ">
           
           {/*First column */}
-          <div className="grid auto-rows-max items-start gap-4 md:gap-8">
-          <Breadcrumb className="hidden md:flex">
+          <div className="grid col-span-3 auto-rows-max items-start gap-4 md:gap-8">
+          <Breadcrumb className="hidden md:flex mt-2">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
@@ -349,7 +323,7 @@ const OrdersPage: React.FC = () =>  {
                               </PopoverContent>
                             </Popover>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{formatDate(item.completion_date)}</TableCell>
+                          <TableCell className="hidden md:table-cell">{formatDate(item.delivery_date)}</TableCell>
                         </TableRow>
                       ))}
                       </TableBody>
@@ -395,7 +369,7 @@ const OrdersPage: React.FC = () =>  {
                                 <TableCell className="hidden sm:table-cell">{item.ord_qty}</TableCell>
                                 <TableCell className="hidden sm:table-cell">{formatDate(item.ord_date)}</TableCell>
                                 <TableCell className="hidden sm:table-cell">{item.status}</TableCell>
-                                <TableCell className="hidden md:table-cell">{formatDate(item.completion_date)}</TableCell>
+                                <TableCell className="hidden md:table-cell">{formatDate(item.delivery_date)}</TableCell>
                               </TableRow>
                             ))}
                             </TableBody>
@@ -412,6 +386,18 @@ const OrdersPage: React.FC = () =>  {
                       </Card>
                     </CardContent>
                 </Card>
+          </div>
+          <div className="col-span-1 md:col-span-2 mt-14">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  Special Orders
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pl-2">
+                
+              </CardContent>
+            </Card>
           </div>
         </main>
       </div>

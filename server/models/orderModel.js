@@ -6,7 +6,7 @@ const { generateCustomId } = require('../utils/idGenerator');
 const getAllOrders = async () => {
   try {
     const [result] = await pool.query(
-      'SELECT order_id, arrangement_name, type_name, ord_qty, ord_date, status, completion_date FROM \`order\`, arrangement, arrangement_type WHERE order.arrangement_id = arrangement.arrangement_id AND arrangement.arrangement_type_id = arrangement_type.arrangement_type_id');
+      'SELECT order_id, arrangement_name, type_name, ord_qty, ord_date, status, delivery_date FROM \`order\`, arrangement, arrangement_type WHERE order.arrangement_id = arrangement.arrangement_id AND arrangement.arrangement_type_id = arrangement_type.arrangement_type_id');
     return result;
   } catch (err) {
     throw new Error(`Error fetching order: ${err.message}`);
@@ -42,11 +42,11 @@ const createOrder = async (orderData) => {
 // Update an order
 const updateOrder = async (order_id, updatedData) => {
   try {
-    const { status, completion_date, ord_qty } = updatedData;
+    const { status, delivery_date, ord_qty } = updatedData;
 
     const [result] = await pool.query(
-      'UPDATE \`order\` SET status = ?, completion_date = ?, ord_qty = ? WHERE order_id = ?',
-      [status, completion_date, ord_qty, order_id]
+      'UPDATE \`order\` SET status = ?, delivery_date = ?, ord_qty = ? WHERE order_id = ?',
+      [status, delivery_date, ord_qty, order_id]
     );
     return result;
   } catch (err) {
@@ -99,7 +99,7 @@ const getOrdersByCustomerId = async (registered_customer_id) => {
          o.order_id, 
          a.arrangement_name, 
          o.status, 
-         o.completion_date, 
+         o.delivery_date, 
          o.ord_qty, 
          a.price * o.ord_qty AS total 
        FROM 
